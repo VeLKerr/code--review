@@ -1,5 +1,6 @@
 #include <iostream>
 #include <numeric>
+#include <algorithm>
 #include "assert.h"
 #include "Football.h"
 
@@ -47,7 +48,7 @@ int main() {
     vector<int>::iterator maxIndexIt = indexes.begin();
     advance(minIndexIt, minIndex + 1);
     advance(maxIndexIt, maxIndex + 1);
-    outputAnswer(&indexes, maxSum, minIndex, maxIndex);
+    outputAnswer(&indexes, maxSum, minIndexIt, maxIndexIt);
     system("pause");
     return 0;
 }
@@ -111,9 +112,10 @@ void inputMap(vector<int> *values, vector<int> *indexes) {
 2. Зачем передавать сам вектор, его начало и конец? Достаточно итераторов начала и конца,
 в этом случае алгоритм можно обобщить для использования другого типа контейнера (например list)
 */
-void outputAnswer(vector<int> *indexes, const long long maxSum, const size_t start, const size_t end) {
+void outputAnswer(vector<int> *indexes, const long long maxSum, const vector<int>::iterator start, const vector<int>::iterator end) {
     cout << maxSum << endl;
     /*= Здесь можно использовать std::for_each */
+    /*std::for_each(start, end, cout << )*/ //дописать лямбду!!!!
     for (size_t i = start; i <= end; ++i) {
         cout << indexes->at(i) + 1 << " ";
     }
@@ -122,9 +124,11 @@ void outputAnswer(vector<int> *indexes, const long long maxSum, const size_t sta
 
 /*== См. выше замечание про передачу аргументов через указатели, const и size_t */
 int binarySearch(vector<int> *values, size_t firstIndex, size_t secondIndex) {
+    /*= Будет не лишним добавить внутрь while дополнительные проверки, например, на выход за границы массива */
+    assert(firstIndex < values->size() && secondIndex < values->size()); //лучше добавить в начале функции assert. 
+    //Если поданы правильные индексы, дальше по ходу работы, выход за пределы массива не произойдёт.
     size_t maxIndex = (firstIndex + secondIndex) / 2;
     long long const sum = values->at(firstIndex) + values->at(firstIndex + 1);
-    /*= Будет не лишним добавить внутрь while дополнительные проверки, например, на выход за границы массива */
     while (firstIndex < secondIndex) {
         if (values->at(maxIndex) >= sum) {
             secondIndex = maxIndex;
