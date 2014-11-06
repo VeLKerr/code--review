@@ -21,7 +21,7 @@ int main() {
     vector<int> indexes;
     //По сути, 2 вышеописанных массива - это, Map. В задании запрещено использовать Map в явном виде.
     inputMap(efficacies, indexes);
-    quickSort(&efficacies, 0, efficacies.size() - 1, &indexes);
+    quickSort(efficacies, 0, efficacies.size() - 1, &indexes);
 
     size_t maxIndex = binarySearch(efficacies, 0, efficacies.size()); //найдём наибольший № игрока, эффективность которого
     //не больше суммарной эффективности 1-го и 2-го
@@ -45,7 +45,7 @@ int main() {
         }
     }
 
-    quickSort(&indexes, minIndex, maxIndex, nullptr);
+    quickSort(indexes, minIndex, maxIndex, nullptr);
     vector<int>::iterator minIndexIt = indexes.begin();
     vector<int>::iterator maxIndexIt = indexes.begin();
     advance(minIndexIt, minIndex);
@@ -65,21 +65,21 @@ int main() {
 
   void quickSort(vector<int> &values, const size_t first, const size_t last, vector<size_t> *indexes)   
  */
-void quickSort(vector<int> *values, const int first, const int last, vector<int> *indexes) {
-    assert(first < values->size() && last < values->size());
+void quickSort(vector<int> &values, const int first, const int last, vector<int> *indexes) {
+    assert(first < values.size() && last < values.size());
     int i = first;
     int j = last;
-    int x = values->at((first + last) / 2);
+    int x = values.at((first + last) / 2);
     do {
-        while (values->at(i) < x && i < values->size()) {
+        while (values.at(i) < x && i < values.size()) {
             i++;
         }
-        while (values->at(j) > x && j > 0) {
+        while (values.at(j) > x && j > 0) {
             j--;
         }
         if (i <= j) {
-            if (values->at(i) > values->at(j)) {
-                swap(values->at(i), values->at(j));
+            if (values.at(i) > values.at(j)) {
+                swap(values.at(i), values.at(j));
                 if (indexes != nullptr) {
                     swap(indexes->at(i), indexes->at(j));
                 }
@@ -88,7 +88,7 @@ void quickSort(vector<int> *values, const int first, const int last, vector<int>
             j--;
         }
     }
-    while (i <= j && i < values->size() && j > 0);
+    while (i <= j && i < values.size() && j > 0);
     if (i < last) {
         quickSort(values, i, last, indexes);
     }

@@ -31,7 +31,7 @@ extern void outputAnswer(std::vector<int> &indexes, const long long maxSum, std:
 * <para>first</para>- № первого элемента подмассива.
 * <para>last</para>- № второго элемента.
 */
-extern void quickSort(std::vector<int> *values, const int first, const int last, std::vector<int> *indexes);
+extern void quickSort(std::vector<int> &values, const int first, const int last, std::vector<int> *indexes);
 
 /**
 * Реализация бинарного поиска по подмассиву
