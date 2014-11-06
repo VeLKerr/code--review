@@ -1,6 +1,8 @@
 /*==
 На семинарах в ШАДе наоборот советовали писать не indexes[i], a indexes.at(i) т.к. at()
 контролирует выход за границы массиива, выбрасывая out_of_range.
+
+OK. Возражение принимается.
 */
 
 #include <iostream>
@@ -9,6 +11,12 @@
 #include "assert.h"
 #include "Football.h"
 
+/*==== Эта строка не нужна. 
+Включение/отключение NDEBUG (как и других специальный макросов) должно определяться конфигурацией сборки (опции компилятора -DИМЯ_ДЕФАЙНА),
+а не редактированием текста.
+Представь себе, что ты каждый раз комментируешь/разкомментируешь это строку для отладки. Эта правка является коммитом или нет? А вот VCS 
+будут это коммитом считать.
+*/
 //#define NDEBUG //-- раскомментировать, чтоб отключить assert.
 
 using std::swap;
@@ -34,10 +42,37 @@ int main() {
     Вектор у нас содержит int, следовательно, accumulate() тоже вернёт int. В условии задачи сказано, что эффектиность может
     достигать 2^31 - 1, значит при сложении возможно переполнение. В моей же функции всё заносить в long long.
     */
+    
+    /*=====
+    Вот реализация std::accumulate:
+    
+    template <class InputIterator, class T>
+    T accumulate (InputIterator first, InputIterator last, T init)
+    {
+        while (first!=last) {
+          init = init + *first;
+          ++first;
+        }
+        return init;
+    }
+    
+    Принципиальным здесь является тип шаблонного параметра T init. Если T==long long, но никаких проблем
+    (для этого нужно вместо константы 0 писать 0LL).
+    
+    P.S. В Wiki ШАДа написана фигня по поводу использования long long. Я спросил у разработчиков из Яндекса, зачем такой изврат,
+    когда есть нормальные типы данных в <cstdint>, мне подвтердили гипотезу: в реальности они вместо long long пользуются
+    более короткой и понятной записью: int64_t, а почему в Wiki рекомендуется long long -- загадка природы. При решении следующих задач
+    рекомендуется использовать типы данных из <cstdint> (см. C++ reference).
+    
+    */
     long long maxSum = accumulate(startIt, startIt + maxIndex + 1, 0); //рассчитаем эффективность первичной комманды
     long long sum = maxSum;
     size_t minIndex = 0;
 
+    /*==== ОШИБКА!
+    Что будет, если efficacies.size() == 0 ?
+    Подсказка: typeof(std::vector.size()) == size_t == unsigned long long
+    */
     for (size_t i = 1; i < efficacies.size() - 1; ++i) {
         sum -= efficacies.at(i - 1); //удаляем из комманды i-го игрока.
         while (maxIndex + 1 < efficacies.size() && //для текущей комманды ищем всех игроков, удовлетворяющих условию
@@ -54,6 +89,16 @@ int main() {
     quickSort(indexes, minIndex, maxIndex, nullptr);
 
     vector<int>::iterator minIndexIt = indexes.begin();
+    
+    /*==== 
+      (итератор + число) = очень вредная привычка!
+      
+      В случае vector это работает, поскольку там random access iterator,
+      но лучше таких конструкций избегать.
+      
+      P.S. А не проще minIndex сразу вычислять в виде итератора?
+    */  
+      
     outputAnswer(minIndexIt + minIndex, minIndexIt + maxIndex + 1, maxSum);
 
     return 0;
@@ -96,6 +141,8 @@ int binarySearch(vector<int> &values, size_t firstIndex, size_t secondIndex) {
     Вы писали: "Будет не лишним добавить внутрь while дополнительные проверки, например, на выход за границы массива".
     По-моему, лучше добавить 1 assert в начале функции. 
     Если на вход поданы правильные индексы, дальше по ходу работы, выход за пределы массива не произойдёт.
+    
+    ==== Можно и так, но вообще, это нужно формально доказывать.
     */
     assert(firstIndex <= values.size() && secondIndex <= values.size());
     size_t maxIndex = (firstIndex + secondIndex) / 2;
@@ -122,6 +169,11 @@ void inputMap(vector<int> &values, vector<int> &indexes) {
         indexes.at(i) = i;
     }
 }
+
+/*===== 
+Зачем заводить эту функцию?
+Подсказка: std::ostream_iterator
+*/
 
 /**
 * Вывод одного числа.
