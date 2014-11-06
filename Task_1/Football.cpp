@@ -14,6 +14,8 @@ using std::advance;
 using std::accumulate;
 using std::vector;
 
+void outputElement(int num);
+
 int main() {
     vector<int> efficacies;
     vector<int> indexes;
@@ -46,7 +48,7 @@ int main() {
     quickSort(&indexes, minIndex, maxIndex, nullptr);
     vector<int>::iterator minIndexIt = indexes.begin();
     vector<int>::iterator maxIndexIt = indexes.begin();
-    advance(minIndexIt, minIndex + 1);
+    advance(minIndexIt, minIndex);
     advance(maxIndexIt, maxIndex + 1);
     outputAnswer(&indexes, maxSum, minIndexIt, maxIndexIt);
     system("pause");
@@ -115,17 +117,21 @@ void inputMap(vector<int> *values, vector<int> *indexes) {
 void outputAnswer(vector<int> *indexes, const long long maxSum, const vector<int>::iterator start, const vector<int>::iterator end) {
     cout << maxSum << endl;
     /*= Здесь можно использовать std::for_each */
-    /*std::for_each(start, end, cout << )*/ //дописать лямбду!!!!
-    for (size_t i = start; i <= end; ++i) {
+    std::for_each(start, end, outputElement); //дописать лямбду!!!!
+    /*for (size_t i = start; i <= end; ++i) {
         cout << indexes->at(i) + 1 << " ";
-    }
+    }*/
     cout << endl;
+}
+
+void outputElement(int num){
+	cout << num + 1 << " ";
 }
 
 /*== См. выше замечание про передачу аргументов через указатели, const и size_t */
 int binarySearch(vector<int> *values, size_t firstIndex, size_t secondIndex) {
     /*= Будет не лишним добавить внутрь while дополнительные проверки, например, на выход за границы массива */
-    assert(firstIndex < values->size() && secondIndex < values->size()); //лучше добавить в начале функции assert. 
+    assert(firstIndex <= values->size() && secondIndex <= values->size()); //лучше добавить в начале функции assert. 
     //Если поданы правильные индексы, дальше по ходу работы, выход за пределы массива не произойдёт.
     size_t maxIndex = (firstIndex + secondIndex) / 2;
     long long const sum = values->at(firstIndex) + values->at(firstIndex + 1);
