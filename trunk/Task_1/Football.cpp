@@ -20,10 +20,10 @@ int main() {
     vector<int> efficacies;
     vector<int> indexes;
     //По сути, 2 вышеописанных массива - это, Map. В задании запрещено использовать Map в явном виде.
-    inputMap(&efficacies, &indexes);
+    inputMap(efficacies, indexes);
     quickSort(&efficacies, 0, efficacies.size() - 1, &indexes);
 
-    size_t maxIndex = binarySearch(&efficacies, 0, efficacies.size()); //найдём наибольший № игрока, эффективность которого
+    size_t maxIndex = binarySearch(efficacies, 0, efficacies.size()); //найдём наибольший № игрока, эффективность которого
     //не больше суммарной эффективности 1-го и 2-го
     vector<int>::iterator startIt = efficacies.begin();
     vector<int>::iterator endIt = efficacies.begin();
@@ -50,7 +50,7 @@ int main() {
     vector<int>::iterator maxIndexIt = indexes.begin();
     advance(minIndexIt, minIndex);
     advance(maxIndexIt, maxIndex + 1);
-    outputAnswer(&indexes, maxSum, minIndexIt, maxIndexIt);
+    outputAnswer(indexes, maxSum, minIndexIt, maxIndexIt);
     system("pause");
     return 0;
 }
@@ -97,46 +97,15 @@ void quickSort(vector<int> *values, const int first, const int last, vector<int>
     }
 }
 
-/*==  См. выше замечание про передачу аргументов через указатели */
-void inputMap(vector<int> *values, vector<int> *indexes) {
-    int numberOfCandidates; //кол-во кандидатов в команду
-    cin >> numberOfCandidates;
-    values->resize(numberOfCandidates);
-    indexes->resize(numberOfCandidates);
-    for (int i = 0; i < values->size(); ++i) {
-        cin >> values->at(i);
-        indexes->at(i) = i;
-    }
-}
-
-/*== 
-1. См. выше замечание про передачу аргументов через указатели, const и size_t 
-2. Зачем передавать сам вектор, его начало и конец? Достаточно итераторов начала и конца,
-в этом случае алгоритм можно обобщить для использования другого типа контейнера (например list)
-*/
-void outputAnswer(vector<int> *indexes, const long long maxSum, const vector<int>::iterator start, const vector<int>::iterator end) {
-    cout << maxSum << endl;
-    /*= Здесь можно использовать std::for_each */
-    std::for_each(start, end, outputElement); //дописать лямбду!!!!
-    /*for (size_t i = start; i <= end; ++i) {
-        cout << indexes->at(i) + 1 << " ";
-    }*/
-    cout << endl;
-}
-
-void outputElement(int num){
-	cout << num + 1 << " ";
-}
-
 /*== См. выше замечание про передачу аргументов через указатели, const и size_t */
-int binarySearch(vector<int> *values, size_t firstIndex, size_t secondIndex) {
+int binarySearch(vector<int> &values, size_t firstIndex, size_t secondIndex) {
     /*= Будет не лишним добавить внутрь while дополнительные проверки, например, на выход за границы массива */
-    assert(firstIndex <= values->size() && secondIndex <= values->size()); //лучше добавить в начале функции assert. 
+    assert(firstIndex <= values.size() && secondIndex <= values.size()); //лучше добавить в начале функции assert. 
     //Если поданы правильные индексы, дальше по ходу работы, выход за пределы массива не произойдёт.
     size_t maxIndex = (firstIndex + secondIndex) / 2;
-    long long const sum = values->at(firstIndex) + values->at(firstIndex + 1);
+    long long const sum = values.at(firstIndex) + values.at(firstIndex + 1);
     while (firstIndex < secondIndex) {
-        if (values->at(maxIndex) >= sum) {
+        if (values.at(maxIndex) >= sum) {
             secondIndex = maxIndex;
         }
         else {
@@ -153,4 +122,31 @@ long long countSum(const vector<int> &values, const size_t start, const size_t e
         sum += values.at(i);
     }
     return sum;
+}
+
+/*==  См. выше замечание про передачу аргументов через указатели */
+void inputMap(vector<int> &values, vector<int> &indexes) {
+    int numberOfCandidates; //кол-во кандидатов в команду
+    cin >> numberOfCandidates;
+    values.resize(numberOfCandidates);
+    indexes.resize(numberOfCandidates);
+    for (int i = 0; i < values.size(); ++i) {
+        cin >> values.at(i);
+        indexes.at(i) = i;
+    }
+}
+
+/*== 
+1. См. выше замечание про передачу аргументов через указатели, const и size_t 
+2. Зачем передавать сам вектор, его начало и конец? Достаточно итераторов начала и конца,
+в этом случае алгоритм можно обобщить для использования другого типа контейнера (например list)
+*/
+void outputAnswer(vector<int> &indexes, const long long maxSum, vector<int>::iterator start, vector<int>::iterator end) {
+    cout << maxSum << endl;
+    std::for_each(start, end, outputElement); //дописать лямбду!!!!
+    cout << endl;
+}
+
+void outputElement(int num){
+	cout << num + 1 << " ";
 }
