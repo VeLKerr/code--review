@@ -1,8 +1,22 @@
-#ifndef FOOTBALL_H //Совместимость с С не предполагается.
+/*==
+1. Совместимость с С не предполагается.
+2. Я понимаю, что было бы удобнее объявить свой namespace и там написать using std::vector, 
+но Visual Studio ругается на namespace'ы вида:
+
+namespace football {
+    using std::vector;
+
+    //other content
+}
+Это обсуждается на многих форумах потому что стандарт разрешает так писать.
+*/
+
+#ifndef FOOTBALL_H
 #define FOOTBALL_H
 #endif
 
 #include <vector>
+
 
 /**
 * Заполнение элементов Map.
@@ -18,7 +32,7 @@ extern void inputMap(std::vector<int> &values, std::vector<int> &indexes);
 * <para>start</para> - индекс начального элемента.
 * <para>end</para> - индекс конечного элемента.
 */
-extern void outputAnswer(std::vector<int> &indexes, const long long maxSum, std::vector<int>::iterator start, std::vector<int>::iterator end);
+extern void outputAnswer(std::vector<int>::iterator start, std::vector<int>::iterator end, const long long maxSum);
 
 /**
 * Реализация quickSort для неявной Map.
@@ -31,7 +45,7 @@ extern void outputAnswer(std::vector<int> &indexes, const long long maxSum, std:
 * <para>first</para>- № первого элемента подмассива.
 * <para>last</para>- № второго элемента.
 */
-extern void quickSort(std::vector<int> &values, const int first, const int last, std::vector<int> *indexes);
+extern void quickSort(std::vector<int> &values, const size_t first, const size_t last, std::vector<int> *indexes);
 
 /**
 * Реализация бинарного поиска по подмассиву
@@ -40,11 +54,3 @@ extern void quickSort(std::vector<int> &values, const int first, const int last,
 * <para>secondIndex</para> - индекс конца подмассива.
 */
 extern int binarySearch(std::vector<int> &values, size_t firstIndex, size_t secondIndex);
-
-/**
-* Рассчитать суммарную эффективность подмассива.
-* <para>values</para> - коэффициенты эффективности игроков.
-* <para>start</para> - индекс начального элемента.
-* <para>end</para> - индекс конечного элемента.
-*/
-//extern long long countSum(const std::vector<int> &values, const size_t start, const size_t end)

@@ -1,36 +1,42 @@
+/*==
+На семинарах в ШАДе наоборот советовали писать не indexes[i], a indexes.at(i) т.к. at()
+контролирует выход за границы массиива, выбрасывая out_of_range.
+*/
+
 #include <iostream>
 #include <numeric>
 #include <algorithm>
 #include "assert.h"
 #include "Football.h"
 
-//#define NDEBUG -- раскомментировать, чтоб отключить assert.
+//#define NDEBUG //-- раскомментировать, чтоб отключить assert.
 
 using std::swap;
 using std::cin;
 using std::cout;
 using std::endl;
-using std::advance;
 using std::accumulate;
 using std::vector;
-
-void outputElement(int num);
 
 int main() {
     vector<int> efficacies;
     vector<int> indexes;
-    //По сути, 2 вышеописанных массива - это, Map. В задании запрещено использовать Map в явном виде.
+    //По сути, 2 вышеописанных массива - это, Map.
     inputMap(efficacies, indexes);
     quickSort(efficacies, 0, efficacies.size() - 1, &indexes);
 
     size_t maxIndex = binarySearch(efficacies, 0, efficacies.size()); //найдём наибольший № игрока, эффективность которого
     //не больше суммарной эффективности 1-го и 2-го
     vector<int>::iterator startIt = efficacies.begin();
-    vector<int>::iterator endIt = efficacies.begin();
-    advance(endIt, maxIndex + 1);
-    long long maxSum = accumulate(startIt, endIt, 0); //рассчитаем эффективность первичной комманды
+
+    /*==
+    Сделал, как Вы сказали, но не уверен, что нужно использовать accumulate().
+    Вектор у нас содержит int, следовательно, accumulate() тоже вернёт int. В условии задачи сказано, что эффектиность может
+    достигать 2^31 - 1, значит при сложении возможно переполнение. В моей же функции всё заносить в long long.
+    */
+    long long maxSum = accumulate(startIt, startIt + maxIndex + 1, 0); //рассчитаем эффективность первичной комманды
     long long sum = maxSum;
-    size_t minIndex = 0; //минимальный индекс игрока в команде
+    size_t minIndex = 0;
 
     for (size_t i = 1; i < efficacies.size() - 1; ++i) {
         sum -= efficacies.at(i - 1); //удаляем из комманды i-го игрока.
@@ -46,26 +52,14 @@ int main() {
     }
 
     quickSort(indexes, minIndex, maxIndex, nullptr);
+
     vector<int>::iterator minIndexIt = indexes.begin();
-    vector<int>::iterator maxIndexIt = indexes.begin();
-    advance(minIndexIt, minIndex);
-    advance(maxIndexIt, maxIndex + 1);
-    outputAnswer(indexes, maxSum, minIndexIt, maxIndexIt);
-    system("pause");
+    outputAnswer(minIndexIt + minIndex, minIndexIt + maxIndex + 1, maxSum);
+
     return 0;
 }
 
-/*=
-3.  Не забываем про const
-4.  Индексы далеко не всегда укладываются в тип int. Лучше использовать size_t: 
-    во-первых, на 64-битных компьютерах область значений больше (вдруг через N лет этот код будет использоватся
-    на компьютерах с десятками гигабайт оперативной памяти), а во-вторых, использование беззнакового типа 
-    позволит компилятору отследить ошибки неправильного вызова функции с передачей отрицательного 
-    индекса в качестве аргумента
-
-  void quickSort(vector<int> &values, const size_t first, const size_t last, vector<size_t> *indexes)   
- */
-void quickSort(vector<int> &values, const int first, const int last, vector<int> *indexes) {
+void quickSort(vector<int> &values, const size_t first, const size_t last, vector<int> *indexes) {
     assert(first < values.size() && last < values.size());
     int i = first;
     int j = last;
@@ -80,7 +74,7 @@ void quickSort(vector<int> &values, const int first, const int last, vector<int>
         if (i <= j) {
             if (values.at(i) > values.at(j)) {
                 swap(values.at(i), values.at(j));
-                if (indexes != nullptr) {
+                if (nullptr != indexes) {
                     swap(indexes->at(i), indexes->at(j));
                 }
             }
@@ -89,19 +83,21 @@ void quickSort(vector<int> &values, const int first, const int last, vector<int>
         }
     }
     while (i <= j && i < values.size() && j > 0);
-    if (i < last) {
+    if (i < last && i < values.size()) {
         quickSort(values, i, last, indexes);
     }
-    if (first < j) {
+    if (first < j && j > 0) {
         quickSort(values, first, j, indexes);
     }
 }
 
-/*== См. выше замечание про передачу аргументов через указатели, const и size_t */
 int binarySearch(vector<int> &values, size_t firstIndex, size_t secondIndex) {
-    /*= Будет не лишним добавить внутрь while дополнительные проверки, например, на выход за границы массива */
-    assert(firstIndex <= values.size() && secondIndex <= values.size()); //лучше добавить в начале функции assert. 
-    //Если поданы правильные индексы, дальше по ходу работы, выход за пределы массива не произойдёт.
+    /*= 
+    Вы писали: "Будет не лишним добавить внутрь while дополнительные проверки, например, на выход за границы массива".
+    По-моему, лучше добавить 1 assert в начале функции. 
+    Если на вход поданы правильные индексы, дальше по ходу работы, выход за пределы массива не произойдёт.
+    */
+    assert(firstIndex <= values.size() && secondIndex <= values.size());
     size_t maxIndex = (firstIndex + secondIndex) / 2;
     long long const sum = values.at(firstIndex) + values.at(firstIndex + 1);
     while (firstIndex < secondIndex) {
@@ -116,15 +112,6 @@ int binarySearch(vector<int> &values, size_t firstIndex, size_t secondIndex) {
     return maxIndex;
 }
 
-long long countSum(const vector<int> &values, const size_t start, const size_t end) {
-    long long sum = 0;
-    for (size_t i = start; i <= end; ++i) {
-        sum += values.at(i);
-    }
-    return sum;
-}
-
-/*==  См. выше замечание про передачу аргументов через указатели */
 void inputMap(vector<int> &values, vector<int> &indexes) {
     int numberOfCandidates; //кол-во кандидатов в команду
     cin >> numberOfCandidates;
@@ -136,17 +123,16 @@ void inputMap(vector<int> &values, vector<int> &indexes) {
     }
 }
 
-/*== 
-1. См. выше замечание про передачу аргументов через указатели, const и size_t 
-2. Зачем передавать сам вектор, его начало и конец? Достаточно итераторов начала и конца,
-в этом случае алгоритм можно обобщить для использования другого типа контейнера (например list)
+/**
+* Вывод одного числа.
+* <para>num</para> - число.
 */
-void outputAnswer(vector<int> &indexes, const long long maxSum, vector<int>::iterator start, vector<int>::iterator end) {
-    cout << maxSum << endl;
-    std::for_each(start, end, outputElement); //дописать лямбду!!!!
-    cout << endl;
+void outputElement(int num) {
+    cout << num + 1 << " ";
 }
 
-void outputElement(int num){
-	cout << num + 1 << " ";
+void outputAnswer(vector<int>::iterator start, vector<int>::iterator end, const long long maxSum) {
+    cout << maxSum << endl;
+    std::for_each(start, end, outputElement);
+    cout << endl;
 }
