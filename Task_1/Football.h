@@ -5,6 +5,22 @@
 #include <vector>
 
 /**
+* Заполнение элементов Map.
+* <para>values</para> - коэффициенты эффективности игроков.
+* <para>indexes</para> - номера игроков (ключи в Map).
+*/
+extern void inputMap(std::vector<int> &values, std::vector<int> &indexes);
+
+/**
+* Вывод ответа в формате, соответственном требованиям задачи.
+* <para>indexes</para> - номера игроков (ключи в Map).
+* <para>maxSum</para> - эффективность команды.
+* <para>start</para> - индекс начального элемента.
+* <para>end</para> - индекс конечного элемента.
+*/
+extern void outputAnswer(std::vector<int> &indexes, const long long maxSum, std::vector<int>::iterator start, std::vector<int>::iterator end);
+
+/**
 * Реализация quickSort для неявной Map.
 * QuickSort в задаче используется 2 раза.
 * 1-й раз, когда мы сортируем игроков в порядке возрастания эффективности.
@@ -18,28 +34,12 @@
 extern void quickSort(std::vector<int> *values, const int first, const int last, std::vector<int> *indexes);
 
 /**
-* Заполнение элементов Map.
-* <para>values</para> - коэффициенты эффективности игроков.
-* <para>indexes</para> - номера игроков (ключи в Map).
-*/
-extern void inputMap(std::vector<int> *values, std::vector<int> *indexes);
-
-/**
-* Вывод ответа в формате, соответственном требованиям задачи.
-* <para>indexes</para> - номера игроков (ключи в Map).
-* <para>maxSum</para> - эффективность команды.
-* <para>start</para> - индекс начального элемента.
-* <para>end</para> - индекс конечного элемента.
-*/
-extern void outputAnswer(std::vector<int> *indexes, const long long maxSum, std::vector<int>::iterator start, std::vector<int>::iterator end);
-
-/**
 * Реализация бинарного поиска по подмассиву
 * <para>values</para> - коэффициенты эффективности игроков.
 * <para>firstIndex</para> - индекс начала подмассива.
 * <para>secondIndex</para> - индекс конца подмассива.
 */
-extern int binarySearch(std::vector<int> *values, size_t firstIndex, size_t secondIndex);
+extern int binarySearch(std::vector<int> &values, size_t firstIndex, size_t secondIndex);
 
 /**
 * Рассчитать суммарную эффективность подмассива.
