@@ -31,7 +31,7 @@ extern void inputMap(std::vector<int> *values, std::vector<int> *indexes);
 * <para>start</para> - индекс начального элемента.
 * <para>end</para> - индекс конечного элемента.
 */
-extern void outputAnswer(std::vector<int> *indexes, const long long maxSum, const size_t start, const size_t end);
+extern void outputAnswer(std::vector<int> *indexes, const long long maxSum, std::vector<int>::iterator start, std::vector<int>::iterator end);
 
 /**
 * Реализация бинарного поиска по подмассиву
