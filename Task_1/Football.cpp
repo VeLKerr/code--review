@@ -1,6 +1,7 @@
 #include <iostream>
 #include <numeric>
 #include <algorithm>
+#include <iterator>
 #include "assert.h"
 #include "Football.h"
 
@@ -9,27 +10,30 @@ using std::cin;
 using std::cout;
 using std::endl;
 using std::accumulate;
+using std::copy;
 using std::vector;
+using std::ostream_iterator;
+using std::for_each;
 
 int main() {
     vector<int> efficacies;
     vector<int> indexes;
-    //По сути, 2 вышеописанных массива - это, Map.
+    //In fact,these two arrays are the map.
     inputMap(efficacies, indexes);
     quickSort(efficacies, 0, efficacies.size() - 1, &indexes);
 
-    size_t maxIndex = binarySearch(efficacies, 0, efficacies.size()); //найдём наибольший № игрока, эффективность которого
-    //не больше суммарной эффективности 1-го и 2-го
+    size_t maxIndex = binarySearch(efficacies, 0, efficacies.size()); //find the greatest number of the player whose
+    //effectiveness isn't larger than the total efficiency of the 1st and 2nd
     vector<int>::iterator startIt = efficacies.begin();
-    int64_t maxSum = accumulate(startIt, startIt + maxIndex + 1, 0LL); //рассчитаем эффективность первичной комманды
+    int64_t maxSum = accumulate(startIt, startIt + maxIndex + 1, 0LL); //calculation the efficiency of the primary team
     int64_t sum = maxSum;
     size_t minIndex = 0;
 
     for (size_t i = 1; i + 1 < efficacies.size(); ++i) {
-        sum -= efficacies.at(i - 1); //удаляем из комманды i-го игрока.
-        while (maxIndex + 1 < efficacies.size() && //для текущей комманды ищем всех игроков, удовлетворяющих условию
+        sum -= efficacies.at(i - 1); //deleting i-th player from the team
+        while (maxIndex + 1 < efficacies.size() && //looking for players that satisfy the condition of the current team 
             efficacies.at(maxIndex + 1) <= efficacies.at(i) + efficacies.at(i + 1)) {
-            sum += efficacies.at(maxIndex + 1); //и добавляем их в команду
+            sum += efficacies.at(maxIndex + 1); //and add them to the team
             if (sum > maxSum) {
                 maxSum = sum;
                 minIndex = i;
@@ -53,6 +57,7 @@ int main() {
       
     outputAnswer(minIndexIt + minIndex, minIndexIt + maxIndex + 1, maxSum);
 
+    system("pause");
     return 0;
 }
 
@@ -92,7 +97,7 @@ int binarySearch(vector<int> &values, size_t firstIndex, size_t secondIndex) {
     /*=    
     ==== Можно и так, но вообще, это нужно формально доказывать.
 
-    Всё доказательство сводится к тому, что т.к. всегда выполняется firstIndex <= maxIndex <= secondIndex, 
+    == Всё доказательство сводится к тому, что т.к. всегда выполняется firstIndex <= maxIndex <= secondIndex, 
     то firstIndex во время работы только увеличивается, а secondIndex - только уменьшается.
     Поэтому, если на вход даны валидные индексы, они валидными и останутся.
     */
@@ -112,7 +117,7 @@ int binarySearch(vector<int> &values, size_t firstIndex, size_t secondIndex) {
 }
 
 void inputMap(vector<int> &values, vector<int> &indexes) {
-    int numberOfCandidates; //кол-во кандидатов в команду
+    int numberOfCandidates;
     cin >> numberOfCandidates;
     values.resize(numberOfCandidates);
     indexes.resize(numberOfCandidates);
@@ -137,6 +142,11 @@ void outputElement(int num) {
 
 void outputAnswer(vector<int>::iterator start, vector<int>::iterator end, const int64_t maxSum) {
     cout << maxSum << endl;
-    std::for_each(start, end, outputElement);
+    /*== Действительно, было бы легче сделать так:
+    copy(start, end, ostream_iterator<int>(cout, " "));
+    если бы не надо было выводить элементы, увеличенные на 1.
+    А как в этом итераторе на лету изменять значения я пока не разобрался.
+    */
+    for_each(start, end, outputElement);
     cout << endl;
 }
