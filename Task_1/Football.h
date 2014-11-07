@@ -1,63 +1,8 @@
-/*==
-1. Совместимость с С не предполагается.
-==== OK.
-
-2. Я понимаю, что было бы удобнее объявить свой namespace и там написать using std::vector, 
-но Visual Studio ругается на namespace'ы вида:
-
-namespace football {
-    using std::vector;
-
-    //other content
-}
-Это обсуждается на многих форумах потому что стандарт разрешает так писать.
-==== Visual Studio (особенно 2008/2010) -- это нечто нецензурное, не стоит под него подстраиваться.
-Если требуется обеспечить совместимость с VC, то придется писать полностью std::vector в объявлениях.
-Еще раз повторюсь -- писать using в header-файлах НЕЛЬЗЯ!
-
-Пример коллизии:
-файл external_project.cpp
-----------------
-#include <SomeGreatLibrary/Vector.h>
-#include "Footbal.h" // вдруг кому-то стало очень нужно
-
-void foo() {
-  SomeGreatLibrary::Vector vector; 
-  // оппс... имя vector уже занято! А ведь здесь никто явно не просит using std::vector!
-  ...
-}
-
-===== Вижу русские буквы :-)
-Давай договоримся, что CodeReview/вопросы/замечания и пр. учебный процесс -- на русском, 
-а остальное -- English only. В реальной практике нужно ориентироваться на командный процесс
-разработки, и совсем не очевидно, что все разработчики в команде знают русский язык.
-*/
-
 #ifndef FOOTBALL_H
 #define FOOTBALL_H
-#endif
-
-/*===== !!! #endif должен быть в конце файла, иначе никакого смысла в этой конструкции нет
-
-1. Когда препроцессор встречает #include "Football.h", он ЦЕЛИКОМ подставляет текст из
-файла в то место .cpp файла, где встретилась строка #include
-2. Эта строка может быть где-нибудь в другом h-файле, и может получиться так, что
-файл включается два раза, что приводит к конфликтам (в данном случае -- не приведет, поскольку здесь
-описаны только заголовки функций, но это скорее исключение, чем правило).
-3. Для того, чтобы избежать такой ситуации:
-  а) препроцессор проверяет, что не объявлен макрос FOOTBALL_H, то есть файл еще не был включен
-     косвенным образом;
-  б) обявляет макрос FOOTBALL_H;
-  в) обрабатывает весь текст до #endif;
-  г) в случае повторного включения, все между #ifdef ... #endif игнорируется, поэтому 
-     конфликта не происходит.
-
-*/
-
-
 
 #include <vector>
-
+#include <cstdint>
 
 /**
 * Заполнение элементов Map.
@@ -73,7 +18,7 @@ extern void inputMap(std::vector<int> &values, std::vector<int> &indexes);
 * <para>start</para> - индекс начального элемента.
 * <para>end</para> - индекс конечного элемента.
 */
-extern void outputAnswer(std::vector<int>::iterator start, std::vector<int>::iterator end, const long long maxSum);
+extern void outputAnswer(std::vector<int>::iterator start, std::vector<int>::iterator end, const int64_t maxSum);
 
 /**
 * Реализация quickSort для неявной Map.
@@ -95,3 +40,5 @@ extern void quickSort(std::vector<int> &values, const size_t first, const size_t
 * <para>secondIndex</para> - индекс конца подмассива.
 */
 extern int binarySearch(std::vector<int> &values, size_t firstIndex, size_t secondIndex);
+
+#endif
