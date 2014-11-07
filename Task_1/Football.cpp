@@ -44,17 +44,37 @@ int main() {
 
     quickSort(indexes, minIndex, maxIndex, nullptr);
 
-    vector<int>::iterator minIndexIt = indexes.begin();
-    
+    vector<int>::iterator minIndexIt = indexes.begin();    
     /*==== 
       (итератор + число) = очень вредная привычка!
       
       В случае vector это работает, поскольку там random access iterator,
       но лучше таких конструкций избегать.
-      
+      ==
+      К сожаленю, я не нашёл никаких возможностей сразу получить итератор, который указывает не
+      на начало или конец, а на какой-то индекс (аналог list.listIterator(int n) в Java).
+      Единственная возможность передвинуть итератор на какой-то индекс - это advance().
+      Но во всех функции присутствует 2 итератора (начальный и конечный).
+      Тогда чтоб избавиться от antipattern'a "итератор + число", нам нужно:
+      1. Объявить 2 итератора, установленных на начало.
+      2. Прописать необходимые advance().
+      3. Подать эти итераторы в функцию.
+      Т.е. такой код:
+        vector<int>::iterator minIndexIt = indexes.begin();
+        outputAnswer(minIndexIt + minIndex, minIndexIt + maxIndex + 1, maxSum);
+      превратится в такой:
+        vector<int>::iterator minIndexIt = indexes.begin();
+        vector<int>::iterator maxIndexIt = indexes.begin();
+        std::advance(minIndexIt, minIndex);
+        std::advance(maxIndexIt, maxIndex + 1);
+        outputAnswer(minIndexIt, maxIndexIt, maxSum);
+      ==
       P.S. А не проще minIndex сразу вычислять в виде итератора?
+      ==
+      Мне кажется, не проще. minIndex и maxIndex используется ещё в quickSort и цикле.
+      Если заменить числа на итераторы, прийдётся всё время использовать
+      std::distance(), что сильно усложнит код.
     */  
-      
     outputAnswer(minIndexIt + minIndex, minIndexIt + maxIndex + 1, maxSum);
 
     system("pause");
@@ -97,8 +117,9 @@ int binarySearch(vector<int> &values, size_t firstIndex, size_t secondIndex) {
     /*=    
     ==== Можно и так, но вообще, это нужно формально доказывать.
 
-    == Всё доказательство сводится к тому, что т.к. всегда выполняется firstIndex <= maxIndex <= secondIndex, 
-    то firstIndex во время работы только увеличивается, а secondIndex - только уменьшается.
+    == Доказательство.
+    Т.к. maxIndex = (firstIndex + secondIndex) / 2, то всегда выполняется firstIndex <= maxIndex <= secondIndex. 
+    Это значит, что firstIndex во время работы только увеличивается, а secondIndex - только уменьшается.
     Поэтому, если на вход даны валидные индексы, они валидными и останутся.
     */
     assert(firstIndex <= values.size() && secondIndex <= values.size());
@@ -143,7 +164,7 @@ void outputElement(int num) {
 void outputAnswer(vector<int>::iterator start, vector<int>::iterator end, const int64_t maxSum) {
     cout << maxSum << endl;
     /*== Действительно, было бы легче сделать так:
-    copy(start, end, ostream_iterator<int>(cout, " "));
+        copy(start, end, ostream_iterator<int>(cout, " "));
     если бы не надо было выводить элементы, увеличенные на 1.
     А как в этом итераторе на лету изменять значения я пока не разобрался.
     */
