@@ -26,6 +26,10 @@ int main() {
     vector<int> indexes;
     //In fact,these two arrays are the map.
     inputMap(efficacies, indexes);
+    
+    /*=*=*=*
+    В этой строке опять ошибка, которая проявится при efficacies.size()==0
+    */
     quickSort(efficacies, 0, efficacies.size() - 1, &indexes);
 
     size_t maxIndex = binarySearch(efficacies, 0, efficacies.size()); //find the greatest number of the player whose
@@ -138,6 +142,9 @@ int binarySearch(vector<int> &values, size_t firstIndex, size_t secondIndex) {
     Т.к. maxIndex = (firstIndex + secondIndex) / 2, то всегда выполняется firstIndex <= maxIndex <= secondIndex. 
     Это значит, что firstIndex во время работы только увеличивается, а secondIndex - только уменьшается.
     Поэтому, если на вход даны валидные индексы, они валидными и останутся.
+    
+    *=*=*=* English, please
+    
     */
     assert(firstIndex <= values.size() && secondIndex <= values.size());
     size_t maxIndex = (firstIndex + secondIndex) / 2;
