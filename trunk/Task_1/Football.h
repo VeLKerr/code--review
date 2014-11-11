@@ -18,6 +18,10 @@ extern void inputMap(std::vector<int> &values, std::vector<int> &indexes);
 * <para>start</para> - beginning iterator.
 * <para>end</para> - ending iterator.
 */
+/*=*=*=*
+Вывод ответа не должен менять содержимое const-вектора.
+Hint: const_iterator
+*/
 extern void outputAnswer(std::vector<int>::iterator start, std::vector<int>::iterator end, const int64_t maxSum);
 
 /**
