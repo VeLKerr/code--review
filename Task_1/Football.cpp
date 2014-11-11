@@ -1,25 +1,12 @@
 #include <iostream>
 #include <numeric>
 #include <algorithm>
+#include <functional>
 #include <iterator>
 #include "assert.h"
 #include "Football.h"
 
-/*=*=*=*
-Когда становится слишком много using std::something,
-лучше писать эти строки там, где они фактически используются.
-Заключение в фигурные скобки ограничивает область видимости using.
-*/
-
-using std::swap;
-using std::cin;
-using std::cout;
-using std::endl;
-using std::accumulate;
-using std::copy;
 using std::vector;
-using std::ostream_iterator;
-using std::for_each;
 
 int main() {
     vector<int> efficacies;
@@ -35,7 +22,7 @@ int main() {
     size_t maxIndex = binarySearch(efficacies, 0, efficacies.size()); //find the greatest number of the player whose
     //effectiveness isn't larger than the total efficiency of the 1st and 2nd
     vector<int>::iterator startIt = efficacies.begin();
-    int64_t maxSum = accumulate(startIt, startIt + maxIndex + 1, 0LL); //calculation the efficiency of the primary team
+    int64_t maxSum = std::accumulate(startIt, startIt + maxIndex + 1, 0LL); //calculation the efficiency of the primary team
     int64_t sum = maxSum;
     size_t minIndex = 0;
 
@@ -54,55 +41,14 @@ int main() {
 
     quickSort(indexes, minIndex, maxIndex, nullptr);
 
-    vector<int>::iterator minIndexIt = indexes.begin();    
-    /*==== 
-      (итератор + число) = очень вредная привычка!
-      
-      В случае vector это работает, поскольку там random access iterator,
-      но лучше таких конструкций избегать.
-      ==
-      К сожаленю, я не нашёл никаких возможностей сразу получить итератор, который указывает не
-      на начало или конец, а на какой-то индекс (аналог list.listIterator(int n) в Java).
-      Единственная возможность передвинуть итератор на какой-то индекс - это advance().
-      Но во всех функции присутствует 2 итератора (начальный и конечный).
-      Тогда чтоб избавиться от antipattern'a "итератор + число", нам нужно:
-      1. Объявить 2 итератора, установленных на начало.
-      2. Прописать необходимые advance().
-      3. Подать эти итераторы в функцию.
-      Т.е. такой код:
-        vector<int>::iterator minIndexIt = indexes.begin();
-        outputAnswer(minIndexIt + minIndex, minIndexIt + maxIndex + 1, maxSum);
-      превратится в такой:
-        vector<int>::iterator minIndexIt = indexes.begin();
-        vector<int>::iterator maxIndexIt = indexes.begin();
-        std::advance(minIndexIt, minIndex);
-        std::advance(maxIndexIt, maxIndex + 1);
-        outputAnswer(minIndexIt, maxIndexIt, maxSum);
-      ==
-      P.S. А не проще minIndex сразу вычислять в виде итератора?
-      ==
-      Мне кажется, не проще. minIndex и maxIndex используется ещё в quickSort и цикле.
-      Если заменить числа на итераторы, прийдётся всё время использовать
-      std::distance(), что сильно усложнит код.
-      
-      *=*=*=* OK. Тут действительно будет усложнение кода, не сопоставимое с постановкой задачи,
-      так что оставь как есть. Но нужно обязательно написать комментарий, что "данная строка 
-      является хаком ради эффективности и работает только для random access iterator".
-      
-    */  
+    vector<int>::const_iterator minIndexIt = indexes.begin();    
     outputAnswer(minIndexIt + minIndex, minIndexIt + maxIndex + 1, maxSum);
-
-    /*=*=*=*
-      Что-то я не обратил внимания на эту строку в прошлый раз.
-      Убери паузу, либо засунь ее под #ifdef ... #endif.
-      Программа должна завершать свою работу, а не ждать чего-либо.
-      Кроме того, это платформо-зависимый код! (аргумент system -- это системная команда)
-      */
-    system("pause");
     return 0;
 }
 
 void quickSort(vector<int> &values, const size_t first, const size_t last, vector<int> *indexes) {
+    using std::swap;
+
     assert(first < values.size() && last < values.size());
     int i = first;
     int j = last;
@@ -144,7 +90,7 @@ int binarySearch(vector<int> &values, size_t firstIndex, size_t secondIndex) {
     Поэтому, если на вход даны валидные индексы, они валидными и останутся.
     
     *=*=*=* English, please
-    
+    ________TODO: Перенести в файл с терией.
     */
     assert(firstIndex <= values.size() && secondIndex <= values.size());
     size_t maxIndex = (firstIndex + secondIndex) / 2;
@@ -162,6 +108,8 @@ int binarySearch(vector<int> &values, size_t firstIndex, size_t secondIndex) {
 }
 
 void inputMap(vector<int> &values, vector<int> &indexes) {
+    using std::cin;
+
     int numberOfCandidates;
     cin >> numberOfCandidates;
     values.resize(numberOfCandidates);
@@ -172,31 +120,11 @@ void inputMap(vector<int> &values, vector<int> &indexes) {
     }
 }
 
-/*===== 
-Зачем заводить эту функцию?
-Подсказка: std::ostream_iterator
-*/
+void outputAnswer(vector<int>::const_iterator start, vector<int>::const_iterator end, const int64_t maxSum) {
+    using std::cout;
+    using std::endl;
 
-/**
-* Вывод одного числа.
-* <para>num</para> - число.
-*/
-void outputElement(int num) {
-    cout << num + 1 << " ";
-}
-
-void outputAnswer(vector<int>::iterator start, vector<int>::iterator end, const int64_t maxSum) {
     cout << maxSum << endl;
-    /*== Действительно, было бы легче сделать так:
-        copy(start, end, ostream_iterator<int>(cout, " "));
-    если бы не надо было выводить элементы, увеличенные на 1.
-    А как в этом итераторе на лету изменять значения я пока не разобрался.
-    *=*=*=*
-    transform(start, end, ostream_iterator<int>(cout, " "), bind1st(plus<int>(), 1));
-    
-    Лучше так, чем заводить отдельную функцию в глобальном пространстве имен.
-    P.S. Посмотри содержимое <algorithm> и <functional>, там вообще много чего есть интересного
-    */
-    for_each(start, end, outputElement);
+    transform(start, end, std::ostream_iterator<int>(cout, " "), std::bind1st(std::plus<int>(), 1));
     cout << endl;
 }
