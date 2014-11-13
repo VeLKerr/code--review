@@ -7,17 +7,15 @@
 #include "Football.h"
 
 using std::vector;
+using std::distance;
 
 int main() {
     vector<int> efficacies;
     vector<int> indexes;
     //In fact,these two arrays are the map.
     inputMap(efficacies, indexes);
-    
-    /*=*=*=*
-    В этой строке опять ошибка, которая проявится при efficacies.size()==0
-    */
-    quickSort(efficacies, 0, efficacies.size() - 1, &indexes);
+
+    quickSort(efficacies, 0, distance(efficacies.begin() + 1, efficacies.end()), &indexes);
 
     size_t maxIndex = binarySearch(efficacies, 0, efficacies.size()); //find the greatest number of the player whose
     //effectiveness isn't larger than the total efficiency of the 1st and 2nd
