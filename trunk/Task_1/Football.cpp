@@ -81,17 +81,6 @@ void quickSort(vector<int> &values, const size_t first, const size_t last, vecto
 }
 
 int binarySearch(vector<int> &values, size_t firstIndex, size_t secondIndex) {
-    /*=    
-    ==== Можно и так, но вообще, это нужно формально доказывать.
-
-    == Доказательство.
-    Т.к. maxIndex = (firstIndex + secondIndex) / 2, то всегда выполняется firstIndex <= maxIndex <= secondIndex. 
-    Это значит, что firstIndex во время работы только увеличивается, а secondIndex - только уменьшается.
-    Поэтому, если на вход даны валидные индексы, они валидными и останутся.
-    
-    *=*=*=* English, please
-    ________TODO: Перенести в файл с терией.
-    */
     assert(firstIndex <= values.size() && secondIndex <= values.size());
     size_t maxIndex = (firstIndex + secondIndex) / 2;
     const int64_t sum = values.at(firstIndex) + values.at(firstIndex + 1);
