@@ -15,7 +15,7 @@ int main() {
     //In fact,these two arrays are the map.
     inputMap(efficacies, indexes);
 
-    quickSort(efficacies, 0, distance(efficacies.begin() + 1, efficacies.end()), &indexes);
+    quickSort(efficacies, 0, efficacies.size() - 1, &indexes);
 
     size_t maxIndex = binarySearch(efficacies, 0, efficacies.size()); //find the greatest number of the player whose
     //effectiveness isn't larger than the total efficiency of the 1st and 2nd
@@ -99,6 +99,7 @@ void inputMap(vector<int> &values, vector<int> &indexes) {
 
     int numberOfCandidates;
     cin >> numberOfCandidates;
+    assert(numberOfCandidates > 0);
     values.resize(numberOfCandidates);
     indexes.resize(numberOfCandidates);
     for (int i = 0; i < values.size(); ++i) {
