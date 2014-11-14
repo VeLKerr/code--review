@@ -6,8 +6,9 @@
 #include "assert.h"
 #include "Football.h"
 
+using std::cout;
+using std::endl;
 using std::vector;
-using std::distance;
 
 int main() {
     vector<int> efficacies;
@@ -15,6 +16,7 @@ int main() {
     //In fact,these two arrays are the map.
     inputMap(efficacies, indexes);
 
+    //assert(efficacies.size() > 0);
     quickSort(efficacies, 0, efficacies.size() - 1, &indexes);
 
     size_t maxIndex = binarySearch(efficacies, 0, efficacies.size()); //find the greatest number of the player whose
@@ -99,7 +101,10 @@ void inputMap(vector<int> &values, vector<int> &indexes) {
 
     int numberOfCandidates;
     cin >> numberOfCandidates;
-    assert(numberOfCandidates > 0);
+    if (numberOfCandidates <= 0) {
+        cout << "Incorrect size of massive!" << endl;
+        exit(EXIT_FAILURE);
+    }
     values.resize(numberOfCandidates);
     indexes.resize(numberOfCandidates);
     for (int i = 0; i < values.size(); ++i) {
@@ -109,9 +114,6 @@ void inputMap(vector<int> &values, vector<int> &indexes) {
 }
 
 void outputAnswer(vector<int>::const_iterator start, vector<int>::const_iterator end, const int64_t maxSum) {
-    using std::cout;
-    using std::endl;
-
     cout << maxSum << endl;
     transform(start, end, std::ostream_iterator<int>(cout, " "), std::bind1st(std::plus<int>(), 1));
     cout << endl;
