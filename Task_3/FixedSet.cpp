@@ -3,6 +3,8 @@
 #include <assert.h>
 #include "FixedSet.h" 
 
+#include <iostream>
+
 using std::vector;
 
 const int PR_MODULE = 5308417;
@@ -18,7 +20,7 @@ HashFunction FixedSet::getHashCoefs(const int k_value, const int prime_module) {
     vector<int64_t> coefs;
     
     /*==*
-    Не совсем понятно, зачем переносить assert() сюда.
+    Не совсем понятно, зачем переносить assert() сюда?
     Мне кажется, что все ошибки желательно проверять как можно раньше, 
     чтоб не заставлять машину тратить лишнее время и память.
     */
@@ -53,8 +55,13 @@ void FixedSet::initialize(const vector<int>& numbers) {
             summary_length += pow(sizes[i], 2);
         }
     }
-
     /*= Явный баг! Если условие внутри while(...) истинно, то программа повиснет) */
+
+    /*==*
+    Это не так. Хэш-функция каждый раз генерируется с новыми коэффициентами, а значит элементы sizes будут 
+    всё время новые => суммарная длина тоже будет принимать разные значения. Т.е. нет никакой гарантии, что если
+    1 раз у нас значение summary_length > 10 * table_size = true, то на новой итерации оно не изменится.
+    */
     while (summary_length > 10 * table_size);
 
     baskets.resize(table_size);
@@ -72,19 +79,12 @@ void FixedSet::initialize(const vector<int>& numbers) {
                 inner_hashes[index] = getHashCoefs(2, PR_MODULE_INNER);
                 added_elements = 0;
                 for (size_t j = 0; j < baskets[index].size(); ++j) {
-		    /*= Получается очень запутанный код, который не разобрать, если
-		      все время не подглядывать в .h-файл.
-		      Лучше потратить несколько лишних строк и явно ввести несколько 
-		      дополнительных переменных, чем писать столько квадратных
-		      скобок в одной строке.
-		      P.S. Код надо писать удобным для человека, а не компьютера.
-		      Не бойся вводить временные переменные, если это улучшает 
-		      читабельность, компилятор все равно их выкенет на этапе оптимизации
-		    */
-                    if (hash_table[index][inner_hashes[index](baskets[index][j])
+                    HashFunction curent_inner_hash = inner_hashes[index];
+                    int current_bascet = baskets[index][j];
+                    if (hash_table[index][curent_inner_hash(current_bascet) 
                         % cell_size] == DEFAULT_VALUE) {
                         ++added_elements;
-                        hash_table[index][inner_hashes[index](baskets[index][j])
+                        hash_table[index][curent_inner_hash(current_bascet) 
                             % cell_size] = baskets[index][j];
                     }
                 }
@@ -118,8 +118,16 @@ bool FixedSet::contains(int number) {
     int bucket_num = hash_func(number) % hash_table.size();
     /*= Используй const-ref, чтобы не копировать вектор целиком при создании
       локальной переменной */
+    /*==*
+    Я не могу сюда подавать параметром элемент inner_hashes т.к, опять же,
+    сигнатура функции жёстко прописана в требованиях.
+
+    Можно сделать вот так..., 
+    vector<int> bucket = (&hash_table)->at(bucket_num);
+    но это, по сути, то же самое.
+    */
     vector<int> bucket = hash_table[bucket_num];
-    /*= Аналогичаное замечание (см. выше) про использования вложенных квадратных скобок */
+    HashFunction hash = inner_hashes[bucket_num];
     return bucket.size() > 0 &&
-        bucket[inner_hashes[bucket_num](number) % bucket.size()] == number;
+        bucket[hash(number) % bucket.size()] == number;
 }
