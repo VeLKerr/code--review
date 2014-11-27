@@ -3,8 +3,6 @@
 #include <assert.h>
 #include "FixedSet.h" 
 
-#include <iostream>
-
 using std::vector;
 
 const int PR_MODULE = 5308417;
@@ -122,7 +120,7 @@ bool FixedSet::contains(int number) {
     Я не могу сюда подавать параметром элемент inner_hashes т.к, опять же,
     сигнатура функции жёстко прописана в требованиях.
 
-    Можно сделать вот так..., 
+    Можно сделать вот так...: 
     vector<int> bucket = (&hash_table)->at(bucket_num);
     но это, по сути, то же самое.
     */
