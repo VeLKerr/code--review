@@ -4,40 +4,28 @@
 
 using std::vector;
 
+const int PR_MODULE = 5308417;
+const int PR_MODULE_INNER = 514229;
+const int DEFAULT_VALUE = -1000000001;
 
 /*= Реализация этого метода не использует никаких переменных класса.
   Нужно объявить его как static */
 
 HashFunction FixedSet::getHashCoefs(const int k_value, const int prime_module) {
-    /*=
-      Лучше сделать два разных assert'а. Тогда в случае срабатывания будет понятно,
-      что именно привело к ошибке.
-     */
-    assert(k_value > 1 && prime_module > 1);
+    assert(prime_module > 1);
     using std::uniform_int_distribution;
-
-    /*= Избыточный комментарий. Использование статических переменных для 
-      увеличения производительности -- это стандартная практика и не требует
-      явного появнения */
-
-    /*"static" in this function used for increasing performance.
-    In this case variables distribution and distribution_for_previous_coef
-    initializes only once. It initializes during first calling of this function.
-    In this screenshot I will give a performance comparison with "static" and 
-    without it: http://prntscr.com/598jcj .
-    */
     static uniform_int_distribution<int> distribution(0, prime_module - 1);
     static uniform_int_distribution<int> distribution_for_previous_coef(1, prime_module - 1);
     static std::default_random_engine generator;
     vector<int64_t> coefs;
     
-    /* 1. assert про значение k_value > 1 лучше либо переместить сюда, либо 
-       продублировать перед циклом for 
-       2. В данном случае i -- это не индекс, а счетчик, поэтому можно использовать
-       тип int. Либо явно приводить значение (k_value-1) к типу size_t, что ИМХО менее
-       читабельно.
+    /*==*
+    Не совсем понятно, зачем переносить assert() сюда.
+    Мне кажется, что все ошибки желательно проверять как можно раньше, 
+    чтоб не заставлять машину тратить лишнее время и память.
     */
-    for (size_t i = 0; i < k_value - 1; ++i) {
+    assert(k_value > 1);
+    for (int i = 0; i < k_value - 1; ++i) {
         coefs.push_back(distribution(generator));
     }
     coefs.push_back(distribution_for_previous_coef(generator));
@@ -52,10 +40,7 @@ void FixedSet::initialize(const vector<int>& numbers) {
     vector<int> sizes;
     do {
         sizes.assign(table_size, 0);
-	/*= Использование нетривиальных констант прямо в коде (например 5308417) 
-	  недопустимо! Нужно вынести константы в начало файла и дать им некоторые
-	  осмысленные имена */
-        hash_func = getHashCoefs(2, 5308417);
+        hash_func = getHashCoefs(2, PR_MODULE);
 	
 	/*= Используй std::copy или std::transform. У тебя все равно программа 
 	компилируется только в режиме C++11 (из-за объявления вложенных template-параметров
@@ -64,6 +49,7 @@ void FixedSet::initialize(const vector<int>& numbers) {
             ++sizes[hash_func(numbers[i]) % table_size];
         }
 	/*= std::accumulate(from, to, 0, λ) */
+        
         summary_length = 0;
         for (size_t i = 0; i < table_size; ++i) {
             summary_length += pow(sizes[i], 2);
@@ -84,8 +70,8 @@ void FixedSet::initialize(const vector<int>& numbers) {
             int added_elements;
             do {
                 size_t cell_size = 4 * baskets[index].size() * baskets[index].size();
-                hash_table[index].assign(cell_size, -1000000001);
-                inner_hashes[index] = getHashCoefs(2, 514229);
+                hash_table[index].assign(cell_size, DEFAULT_VALUE);
+                inner_hashes[index] = getHashCoefs(2, PR_MODULE_INNER);
                 added_elements = 0;
                 for (size_t j = 0; j < baskets[index].size(); ++j) {
 		    /*= Получается очень запутанный код, который не разобрать, если
@@ -98,7 +84,7 @@ void FixedSet::initialize(const vector<int>& numbers) {
 		      читабельность, компилятор все равно их выкенет на этапе оптимизации
 		    */
                     if (hash_table[index][inner_hashes[index](baskets[index][j])
-                        % cell_size] == -1000000001) {
+                        % cell_size] == DEFAULT_VALUE) {
                         ++added_elements;
                         hash_table[index][inner_hashes[index](baskets[index][j])
                             % cell_size] = baskets[index][j];
@@ -125,7 +111,12 @@ void FixedSet::initialize(const vector<int>& numbers) {
                                               // bool(size_t >  0) == true  (всегда!)
                                               // bool(size_t == 0) == false
 					      */
-const bool FixedSet::contains(int number) {    
+
+/*==*
+В требованиях задачи есть условие, что contains() должна выполнятся за О(1).
+Если же мы проходим все элементы и подсчитываем их, будет О(n).
+*/
+bool FixedSet::contains(int number) {
     int bucket_num = hash_func(number) % hash_table.size();
     /*= Используй const-ref, чтобы не копировать вектор целиком при создании
       локальной переменной */
