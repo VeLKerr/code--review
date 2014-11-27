@@ -1,4 +1,5 @@
 ﻿#include <random>
+#include <numeric>
 #include <assert.h>
 #include "FixedSet.h" 
 
@@ -7,9 +8,6 @@ using std::vector;
 const int PR_MODULE = 5308417;
 const int PR_MODULE_INNER = 514229;
 const int DEFAULT_VALUE = -1000000001;
-
-/*= Реализация этого метода не использует никаких переменных класса.
-  Нужно объявить его как static */
 
 HashFunction FixedSet::getHashCoefs(const int k_value, const int prime_module) {
     assert(prime_module > 1);
@@ -49,7 +47,7 @@ void FixedSet::initialize(const vector<int>& numbers) {
             ++sizes[hash_func(numbers[i]) % table_size];
         }
 	/*= std::accumulate(from, to, 0, λ) */
-        
+        //summary_length = std::accumulate(0, table_size, 0, sizes);
         summary_length = 0;
         for (size_t i = 0; i < table_size; ++i) {
             summary_length += pow(sizes[i], 2);

@@ -24,6 +24,13 @@ public:
           explicit FixedSet();
           void initialize(const std::vector<int> &numbers);
     */
+    /*==*
+    Такое объявление не совпадает с требованием задачи.
+    (см. problems4.pdf, Task 4-3).
+    Я тоже согласен с условием. Мне кажется, что у любой коллекции
+    должен быть публичный конструктор без параметров, чтоб мы могли создать
+    коллекцию в одном месте, а заполнить в другом.
+    */
     FixedSet();
     
     /**
@@ -40,7 +47,7 @@ public:
     /*==*
     bool contains(const int number) const 
     ругается на функтор. Считается, что если мы выполнили функтор, то объект изменился.
-    Оставлю просто, без const тем более, что в условии дана именно такая сигнатура функции.
+    Оставлю просто, без const, тем более, что в условии дана именно такая сигнатура функции.
     */
     bool contains(const int number);
 
@@ -59,7 +66,7 @@ private:
     *   <para>k_value</para> - quantity of elements in vector with coefficients.
     *   <para>prime_module</para> - right limit of uniform distribution for generation coefs.
     */
-    HashFunction getHashCoefs(const int k_value, const int prime_module);
+    static HashFunction getHashCoefs(const int k_value, const int prime_module);
 };
 
 #endif
