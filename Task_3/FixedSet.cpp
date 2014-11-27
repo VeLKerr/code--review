@@ -1,12 +1,25 @@
-#include <random>
+﻿#include <random>
 #include <assert.h>
-#include "FixedSet.h"
+#include "FixedSet.h" 
 
 using std::vector;
 
+
+/*= Реализация этого метода не использует никаких переменных класса.
+  Нужно объявить его как static */
+
 HashFunction FixedSet::getHashCoefs(const int k_value, const int prime_module) {
+    /*=
+      Лучше сделать два разных assert'а. Тогда в случае срабатывания будет понятно,
+      что именно привело к ошибке.
+     */
     assert(k_value > 1 && prime_module > 1);
     using std::uniform_int_distribution;
+
+    /*= Избыточный комментарий. Использование статических переменных для 
+      увеличения производительности -- это стандартная практика и не требует
+      явного появнения */
+
     /*"static" in this function used for increasing performance.
     In this case variables distribution and distribution_for_previous_coef
     initializes only once. It initializes during first calling of this function.
@@ -17,6 +30,13 @@ HashFunction FixedSet::getHashCoefs(const int k_value, const int prime_module) {
     static uniform_int_distribution<int> distribution_for_previous_coef(1, prime_module - 1);
     static std::default_random_engine generator;
     vector<int64_t> coefs;
+    
+    /* 1. assert про значение k_value > 1 лучше либо переместить сюда, либо 
+       продублировать перед циклом for 
+       2. В данном случае i -- это не индекс, а счетчик, поэтому можно использовать
+       тип int. Либо явно приводить значение (k_value-1) к типу size_t, что ИМХО менее
+       читабельно.
+    */
     for (size_t i = 0; i < k_value - 1; ++i) {
         coefs.push_back(distribution(generator));
     }
@@ -32,16 +52,27 @@ void FixedSet::initialize(const vector<int>& numbers) {
     vector<int> sizes;
     do {
         sizes.assign(table_size, 0);
+	/*= Использование нетривиальных констант прямо в коде (например 5308417) 
+	  недопустимо! Нужно вынести константы в начало файла и дать им некоторые
+	  осмысленные имена */
         hash_func = getHashCoefs(2, 5308417);
+	
+	/*= Используй std::copy или std::transform. У тебя все равно программа 
+	компилируется только в режиме C++11 (из-за объявления вложенных template-параметров
+	без пробелов в FixedSet.h), так что можешь использовать λ-выражения */
         for (size_t i = 0; i < numbers.size(); ++i) {
             ++sizes[hash_func(numbers[i]) % table_size];
         }
+	/*= std::accumulate(from, to, 0, λ) */
         summary_length = 0;
         for (size_t i = 0; i < table_size; ++i) {
             summary_length += pow(sizes[i], 2);
         }
     }
+
+    /*= Явный баг! Если условие внутри while(...) истинно, то программа повиснет) */
     while (summary_length > 10 * table_size);
+
     baskets.resize(table_size);
     for (size_t i = 0; i < numbers.size(); ++i) {
         baskets[hash_func(numbers[i]) % table_size].push_back(numbers[i]);
@@ -57,6 +88,15 @@ void FixedSet::initialize(const vector<int>& numbers) {
                 inner_hashes[index] = getHashCoefs(2, 514229);
                 added_elements = 0;
                 for (size_t j = 0; j < baskets[index].size(); ++j) {
+		    /*= Получается очень запутанный код, который не разобрать, если
+		      все время не подглядывать в .h-файл.
+		      Лучше потратить несколько лишних строк и явно ввести несколько 
+		      дополнительных переменных, чем писать столько квадратных
+		      скобок в одной строке.
+		      P.S. Код надо писать удобным для человека, а не компьютера.
+		      Не бойся вводить временные переменные, если это улучшает 
+		      читабельность, компилятор все равно их выкенет на этапе оптимизации
+		    */
                     if (hash_table[index][inner_hashes[index](baskets[index][j])
                         % cell_size] == -1000000001) {
                         ++added_elements;
@@ -70,9 +110,27 @@ void FixedSet::initialize(const vector<int>& numbers) {
     }
 }
 
-const bool FixedSet::contains(int number) {
+/*= 
+  1. const bool -- относится к типу возвращаесого параметра, что для не-ref типов
+  совершенно бессмысленно.
+  Видимо, имелось ввиду, что метод contains не влияет на поля класса. Тогда ключевое
+  слово const нужно писать после закрывающей круглой скобки
+  2. Лучше использовать не bool contains(), а семантику STL (либо продублировать
+  функциональность еще одним методом): 
+    size_t FixedSet::count(int number) const; // возвращает количество элементов,
+                                              // что не противоречит использованию
+					      // этого метода как bool, поскольку:
+                                              // count()==0  ===  contains()==false,
+                                              // count()>0   ===  contains()==true.
+                                              // bool(size_t >  0) == true  (всегда!)
+                                              // bool(size_t == 0) == false
+					      */
+const bool FixedSet::contains(int number) {    
     int bucket_num = hash_func(number) % hash_table.size();
+    /*= Используй const-ref, чтобы не копировать вектор целиком при создании
+      локальной переменной */
     vector<int> bucket = hash_table[bucket_num];
+    /*= Аналогичаное замечание (см. выше) про использования вложенных квадратных скобок */
     return bucket.size() > 0 &&
         bucket[inner_hashes[bucket_num](number) % bucket.size()] == number;
 }
