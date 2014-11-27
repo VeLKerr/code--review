@@ -1,8 +1,4 @@
 ﻿#include "HashFunction.h" 
-
-/*= Нужно подключить <cstddef>,
-  иначе некоторые компиляторы (например, clang) ругаются на 
-  не объявленный тип size_t. */
 #include <cstddef>
 
 using std::vector;

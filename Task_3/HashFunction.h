@@ -7,23 +7,15 @@
 /************************************************************************/
 /*This is a class for computing hash-function using double-level hashing*/
 /************************************************************************/
-class HashFunction {
+class HashFunction : public std::unary_function<int64_t, int64_t>{
 
 /*= 
-  1. Обычно описывается сначала public часть, а потом -- private;
   2. Имена приватных переменных должны иметь какой-нибудь специальный 
   формат, отличающий их от обычных переменных. Конкретный формат 
   зависит от ипользуемого в проекте Code Style Guide. Например, в стиле
   Александреску имена приватных членов класса заканчиваются на подчеркивание,
   еще очень часто встречется использование префикса имен "m_"
-  3. По существу, HashFunction -- это унарная функция. Тогда лучше явно наследовать
-  класс от std::unary_function, чтобы можно было использовать его совместно
-  со стандартными алгоритмами STL.
 */
-private:
-    std::vector<int64_t> coefs;
-    int64_t prime_module;
-
 public:
    /**
     *	Default constructor.
@@ -31,7 +23,7 @@ public:
     HashFunction();
 
    /**
-    *	Constructor.
+    *   Constructor.
     *  <para>coefs</para> - uniformly-distributed coefficients
     *  <para>prime_module</para> - right limit of uniform distribution for generation coefs.
     */
@@ -42,6 +34,10 @@ public:
      *  It has the same sense as if we wrote <code>int64_t countHash (int64_t value)</code>.
      */
     int64_t operator() (int64_t value);
+
+private:
+    std::vector<int64_t> coefs;
+    int64_t prime_module;
 };
 
 #endif
