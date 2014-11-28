@@ -47,19 +47,21 @@ public:
     /*==*
     bool contains(const int number) const 
     ругается на функтор. Считается, что если мы выполнили функтор, то объект изменился.
-    Система ШАД же на отсутствие const не ругается.
+    Функтор можно заменить на обічную функцию, но тогда будет не так красиво. Система ШАД 
+    же на отсутствие const не ругается. Главное, чтобы параметры и возвращаемые типы функций 
+    initialize() и contains() были такими, как надо.
     */
     bool contains(const int number);
 
 private:
-    std::vector<std::vector<int>> hash_table;
-    std::vector<std::vector<int>> baskets;
-    std::vector<HashFunction> inner_hashes;
+    std::vector<std::vector<int>> m_hash_table;
+    std::vector<std::vector<int>> m_baskets;
+    std::vector<HashFunction> m_inner_hashes;
 
     /**
      *	Functor for hash-function computation.
      */
-    HashFunction hash_func;
+    HashFunction m_hash_func;
 
     /**
     *   Create the vector of coefficients, which will used for computing hash.
