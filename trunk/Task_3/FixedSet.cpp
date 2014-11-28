@@ -1,5 +1,6 @@
 ﻿#include <random>
 #include <numeric>
+#include <algorithm>
 #include <assert.h>
 #include "FixedSet.h" 
 
@@ -43,9 +44,13 @@ void FixedSet::initialize(const vector<int>& numbers) {
 	/*= Используй std::copy или std::transform. У тебя все равно программа 
 	компилируется только в режиме C++11 (из-за объявления вложенных template-параметров
 	без пробелов в FixedSet.h), так что можешь использовать λ-выражения */
-        for (size_t i = 0; i < numbers.size(); ++i) {
-            ++sizes[m_hash_func(numbers[i]) % table_size];
-        }
+
+        /*==*
+        А чем плох обычный for_each?
+        */
+        std::for_each(numbers.cbegin(), numbers.cend(), [&](int number) {
+            ++sizes[m_hash_func(number) % table_size];
+        });
         summary_length = std::accumulate(sizes.cbegin(), sizes.cbegin() + table_size, 0, [](int sum, int elem) {
             return sum + pow(elem, 2);
         });
