@@ -38,20 +38,17 @@ void FixedSet::initialize(const vector<int>& numbers) {
     vector<int> sizes;
     do {
         sizes.assign(table_size, 0);
-        hash_func = getHashCoefs(2, PR_MODULE);
+        m_hash_func = getHashCoefs(2, PR_MODULE);
 	
 	/*= Используй std::copy или std::transform. У тебя все равно программа 
 	компилируется только в режиме C++11 (из-за объявления вложенных template-параметров
 	без пробелов в FixedSet.h), так что можешь использовать λ-выражения */
         for (size_t i = 0; i < numbers.size(); ++i) {
-            ++sizes[hash_func(numbers[i]) % table_size];
+            ++sizes[m_hash_func(numbers[i]) % table_size];
         }
-	/*= std::accumulate(from, to, 0, λ) */
-        //summary_length = std::accumulate(0, table_size, 0, sizes);
-        summary_length = 0;
-        for (size_t i = 0; i < table_size; ++i) {
-            summary_length += pow(sizes[i], 2);
-        }
+        summary_length = std::accumulate(sizes.cbegin(), sizes.cbegin() + table_size, 0, [](int sum, int elem) {
+            return sum + pow(elem, 2);
+        });
     }
     /*= Явный баг! Если условие внутри while(...) истинно, то программа повиснет) */
 
@@ -62,32 +59,32 @@ void FixedSet::initialize(const vector<int>& numbers) {
     */
     while (summary_length > 10 * table_size);
 
-    baskets.resize(table_size);
+    m_baskets.resize(table_size);
     for (size_t i = 0; i < numbers.size(); ++i) {
-        baskets[hash_func(numbers[i]) % table_size].push_back(numbers[i]);
+        m_baskets[m_hash_func(numbers[i]) % table_size].push_back(numbers[i]);
     }
-    inner_hashes.resize(table_size);
-    hash_table.resize(table_size);
+    m_inner_hashes.resize(table_size);
+    m_hash_table.resize(table_size);
     for (size_t index = 0; index < table_size; ++index) {
-        if (baskets[index].size() > 0) {
+        if (m_baskets[index].size() > 0) {
             int added_elements;
             do {
-                size_t cell_size = 4 * baskets[index].size() * baskets[index].size();
-                hash_table[index].assign(cell_size, DEFAULT_VALUE);
-                inner_hashes[index] = getHashCoefs(2, PR_MODULE_INNER);
+                size_t cell_size = 4 * m_baskets[index].size() * m_baskets[index].size();
+                m_hash_table[index].assign(cell_size, DEFAULT_VALUE);
+                m_inner_hashes[index] = getHashCoefs(2, PR_MODULE_INNER);
                 added_elements = 0;
-                for (size_t j = 0; j < baskets[index].size(); ++j) {
-                    HashFunction curent_inner_hash = inner_hashes[index];
-                    int current_bascet = baskets[index][j];
-                    if (hash_table[index][curent_inner_hash(current_bascet) 
+                for (size_t j = 0; j < m_baskets[index].size(); ++j) {
+                    HashFunction curent_inner_hash = m_inner_hashes[index];
+                    int current_bascet = m_baskets[index][j];
+                    if (m_hash_table[index][curent_inner_hash(current_bascet) 
                         % cell_size] == DEFAULT_VALUE) {
                         ++added_elements;
-                        hash_table[index][curent_inner_hash(current_bascet) 
-                            % cell_size] = baskets[index][j];
+                        m_hash_table[index][curent_inner_hash(current_bascet) 
+                            % cell_size] = m_baskets[index][j];
                     }
                 }
             }
-            while (added_elements < baskets[index].size());
+            while (added_elements < m_baskets[index].size());
         }
     }
 }
@@ -113,7 +110,7 @@ void FixedSet::initialize(const vector<int>& numbers) {
 Если же мы проходим все элементы и подсчитываем их, будет О(n).
 */
 bool FixedSet::contains(int number) {
-    int bucket_num = hash_func(number) % hash_table.size();
+    int bucket_num = m_hash_func(number) % m_hash_table.size();
     /*= Используй const-ref, чтобы не копировать вектор целиком при создании
       локальной переменной */
     /*==*
@@ -124,8 +121,8 @@ bool FixedSet::contains(int number) {
     vector<int> bucket = (&hash_table)->at(bucket_num);
     но это, по сути, то же самое.
     */
-    vector<int> bucket = hash_table[bucket_num];
-    HashFunction hash = inner_hashes[bucket_num];
+    vector<int> bucket = m_hash_table[bucket_num];
+    HashFunction hash = m_inner_hashes[bucket_num];
     return bucket.size() > 0 &&
         bucket[hash(number) % bucket.size()] == number;
 }
