@@ -14,10 +14,16 @@ void inputData(vector<int> &vec) {
     int size;
     cin >> size;
     vec.resize(size);
-    //std::copy(istream_iterator<int>(cin), istream_iterator<int>(), back_inserter(vec));//TODO.
-    for (int i = 0; i < size; ++i) {
-        cin >> vec.at(i);
-    }
+
+    /*==*std::copy(istream_iterator<int>(cin), istream_iterator<int>(), vec.begin());
+    не работает, т.к. istream_iterator считывает весь поток до конца, а мы после ввода вектора
+    ввеодим ещё числа. Вот и получаем выход за пределы.*/
+
+    std::generate_n(vec.begin(), vec.size(), []() {
+        int current;
+        cin >> current;
+        return current;
+    });
 }
 
 void checking(FixedSet &set) {
