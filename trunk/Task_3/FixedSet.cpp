@@ -22,6 +22,10 @@ HashFunction FixedSet::getHashCoefs(const int k_value, const int prime_module) {
     Не совсем понятно, зачем переносить assert() сюда?
     Мне кажется, что все ошибки желательно проверять как можно раньше, 
     чтоб не заставлять машину тратить лишнее время и память.
+    
+    Продублировать assert в данном месте полезно для читаемости кода.
+    На производительность это не влияет, поскольку во многих реализациях C++
+    assert -- это не функция, а макрос, который игнорируется в Release-режиме.
     */
     assert(k_value > 1);
     for (int i = 0; i < k_value - 1; ++i) {
@@ -47,6 +51,11 @@ void FixedSet::initialize(const vector<int>& numbers) {
 
         /*==*
         А чем плох обычный for_each?
+        
+        В данном случае -- тоже не плох. В предыдущей реализации у тебя был цикл for
+        P.S. захват всех переменных в lambda-выражении -- избыточен.
+        Лучше передавать только используемые переменные + this, если используются поля класса.
+        
         */
         std::for_each(numbers.cbegin(), numbers.cend(), [&](int number) {
             ++sizes[m_hash_func(number) % table_size];
@@ -61,6 +70,10 @@ void FixedSet::initialize(const vector<int>& numbers) {
     Это не так. Хэш-функция каждый раз генерируется с новыми коэффициентами, а значит элементы sizes будут 
     всё время новые => суммарная длина тоже будет принимать разные значения. Т.е. нет никакой гарантии, что если
     1 раз у нас значение summary_length > 10 * table_size = true, то на новой итерации оно не изменится.
+    
+    *=* Sorry, не обратил внимание, что while относится к предыдущему блоку do {}, а не 
+    выполняет пустую инструкцию. Лучше в таких случаях писать закрывающую блок скобку     
+    } и конструкцию while(..) в одной строке.
     */
     while (summary_length > 10 * table_size);
 
@@ -70,6 +83,16 @@ void FixedSet::initialize(const vector<int>& numbers) {
     }
     m_inner_hashes.resize(table_size);
     m_hash_table.resize(table_size);
+    
+    /*=*
+     Ниже -- прохо структурированный код: 
+     for { if { do { for { if { -- это 5 уровней вложенности!
+     Лучше int added_elements; do {...} -- переменести в отдельную именованную функцию,
+     а внешний цикл for заменить на for_each.
+     
+     P.S. Тут можно развить фантазию и заменить for { if { ... }} на std::copy_if, если
+     отдельную именованную функцию реализовать в вите итератора.
+     */
     for (size_t index = 0; index < table_size; ++index) {
         if (m_baskets[index].size() > 0) {
             int added_elements;
@@ -113,6 +136,8 @@ void FixedSet::initialize(const vector<int>& numbers) {
 /*==*
 В требованиях задачи есть условие, что contains() должна выполнятся за О(1).
 Если же мы проходим все элементы и подсчитываем их, будет О(n).
+
+*=* OK.
 */
 bool FixedSet::contains(int number) {
     int bucket_num = m_hash_func(number) % m_hash_table.size();
@@ -125,6 +150,9 @@ bool FixedSet::contains(int number) {
     Можно сделать вот так...: 
     vector<int> bucket = (&hash_table)->at(bucket_num);
     но это, по сути, то же самое.
+    
+    *=* Подсказка:
+    const ElementType & element = container_variable[index];
     */
     vector<int> bucket = m_hash_table[bucket_num];
     HashFunction hash = m_inner_hashes[bucket_num];
