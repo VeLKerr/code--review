@@ -36,12 +36,8 @@ void FixedSet::initialize(const vector<int>& numbers) {
         sizes.assign(table_size, 0);
         m_hash_func = getHashCoefs(2, PR_MODULE);
         /*==*
-        А чем плох обычный for_each?
-        
-        В данном случае -- тоже не плох. В предыдущей реализации у тебя был цикл for
         P.S. захват всех переменных в lambda-выражении -- избыточен.
         Лучше передавать только используемые переменные + this, если используются поля класса.
-        
         */
         std::for_each(numbers.cbegin(), numbers.cend(), [&](int number) {
             ++sizes[m_hash_func(number) % table_size];
@@ -92,11 +88,8 @@ void FixedSet::initialize(const vector<int>& numbers) {
 }
 
 bool FixedSet::contains(int number) const {
-    int bucket_num = m_hash_func(number) % m_hash_table.size();    
-    /*=* Подсказка:
-    const ElementType & element = container_variable[index];
-    */
-    vector<int> bucket = m_hash_table[bucket_num];
+    int bucket_num = m_hash_func(number) % m_hash_table.size();
+    const vector<int> & bucket = m_hash_table[bucket_num];
     HashFunction hash = m_inner_hashes[bucket_num];
     return bucket.size() > 0 &&
         bucket[hash(number) % bucket.size()] == number;
