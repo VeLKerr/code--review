@@ -17,16 +17,7 @@ HashFunction FixedSet::getHashCoefs(const int k_value, const int prime_module) {
     static uniform_int_distribution<int> distribution_for_previous_coef(1, prime_module - 1);
     static std::default_random_engine generator;
     vector<int64_t> coefs;
-    
-    /*==*
-    Не совсем понятно, зачем переносить assert() сюда?
-    Мне кажется, что все ошибки желательно проверять как можно раньше, 
-    чтоб не заставлять машину тратить лишнее время и память.
-    
-    Продублировать assert в данном месте полезно для читаемости кода.
-    На производительность это не влияет, поскольку во многих реализациях C++
-    assert -- это не функция, а макрос, который игнорируется в Release-режиме.
-    */
+
     assert(k_value > 1);
     for (int i = 0; i < k_value - 1; ++i) {
         coefs.push_back(distribution(generator));
@@ -44,11 +35,6 @@ void FixedSet::initialize(const vector<int>& numbers) {
     do {
         sizes.assign(table_size, 0);
         m_hash_func = getHashCoefs(2, PR_MODULE);
-	
-	/*= Используй std::copy или std::transform. У тебя все равно программа 
-	компилируется только в режиме C++11 (из-за объявления вложенных template-параметров
-	без пробелов в FixedSet.h), так что можешь использовать λ-выражения */
-
         /*==*
         А чем плох обычный for_each?
         
@@ -63,19 +49,7 @@ void FixedSet::initialize(const vector<int>& numbers) {
         summary_length = std::accumulate(sizes.cbegin(), sizes.cbegin() + table_size, 0, [](int sum, int elem) {
             return sum + pow(elem, 2);
         });
-    }
-    /*= Явный баг! Если условие внутри while(...) истинно, то программа повиснет) */
-
-    /*==*
-    Это не так. Хэш-функция каждый раз генерируется с новыми коэффициентами, а значит элементы sizes будут 
-    всё время новые => суммарная длина тоже будет принимать разные значения. Т.е. нет никакой гарантии, что если
-    1 раз у нас значение summary_length > 10 * table_size = true, то на новой итерации оно не изменится.
-    
-    *=* Sorry, не обратил внимание, что while относится к предыдущему блоку do {}, а не 
-    выполняет пустую инструкцию. Лучше в таких случаях писать закрывающую блок скобку     
-    } и конструкцию while(..) в одной строке.
-    */
-    while (summary_length > 10 * table_size);
+    } while (summary_length > 10 * table_size);
 
     m_baskets.resize(table_size);
     for (size_t i = 0; i < numbers.size(); ++i) {
@@ -117,41 +91,9 @@ void FixedSet::initialize(const vector<int>& numbers) {
     }
 }
 
-/*= 
-  1. const bool -- относится к типу возвращаесого параметра, что для не-ref типов
-  совершенно бессмысленно.
-  Видимо, имелось ввиду, что метод contains не влияет на поля класса. Тогда ключевое
-  слово const нужно писать после закрывающей круглой скобки
-  2. Лучше использовать не bool contains(), а семантику STL (либо продублировать
-  функциональность еще одним методом): 
-    size_t FixedSet::count(int number) const; // возвращает количество элементов,
-                                              // что не противоречит использованию
-					      // этого метода как bool, поскольку:
-                                              // count()==0  ===  contains()==false,
-                                              // count()>0   ===  contains()==true.
-                                              // bool(size_t >  0) == true  (всегда!)
-                                              // bool(size_t == 0) == false
-					      */
-
-/*==*
-В требованиях задачи есть условие, что contains() должна выполнятся за О(1).
-Если же мы проходим все элементы и подсчитываем их, будет О(n).
-
-*=* OK.
-*/
-bool FixedSet::contains(int number) {
-    int bucket_num = m_hash_func(number) % m_hash_table.size();
-    /*= Используй const-ref, чтобы не копировать вектор целиком при создании
-      локальной переменной */
-    /*==*
-    Я не могу сюда подавать параметром элемент inner_hashes т.к, опять же,
-    сигнатура функции жёстко прописана в требованиях.
-
-    Можно сделать вот так...: 
-    vector<int> bucket = (&hash_table)->at(bucket_num);
-    но это, по сути, то же самое.
-    
-    *=* Подсказка:
+bool FixedSet::contains(int number) const {
+    int bucket_num = m_hash_func(number) % m_hash_table.size();    
+    /*=* Подсказка:
     const ElementType & element = container_variable[index];
     */
     vector<int> bucket = m_hash_table[bucket_num];
