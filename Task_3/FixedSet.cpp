@@ -4,6 +4,8 @@
 #include <assert.h>
 #include "FixedSet.h" 
 
+#define VARIANT_VAL 2
+
 using std::vector;
 using std::iterator;
 
@@ -61,29 +63,23 @@ void FixedSet::initialize(const vector<int>& numbers) {
      отдельную именованную функцию реализовать в вите итератора.
      */
     size_t currentIndex = 0;
-    /*1 --------------------------
+#if VARIANT_VAL == 1 // не работает
     vector<int> tmp_vect(table_size);
-    std::copy_if(m_baskets.begin(), m_baskets.end(), tmp_vect.begin(), [this, &currentIndex]() {
-        if (m_baskets[currentIndex].size() > 0) {
+    std::copy_if(m_baskets.begin(), m_baskets.end(), tmp_vect.begin(), [this, &currentIndex](const vector<int> &element) {
+        if (element.size() > 0) {
             computeHashes(currentIndex);
             return true;
         }
         return false;
-    });*/
-    //2--------------------
-    std::for_each(m_baskets.begin(), m_baskets.end(), [this, &currentIndex](vector<int> &element) {
+    });
+#elif VARIANT_VAL == 2
+    std::for_each(m_baskets.begin(), m_baskets.end(), [this, &currentIndex](const vector<int> &element) {
         if (element.size() > 0) {
             computeHashes(currentIndex);
-            currentIndex++;
         }
+        currentIndex++;
     });
-    
-     //3------------------------------
-    /*for (size_t index = 0; index < table_size; ++index) {
-        if (m_baskets[index].size() > 0) {
-            computeHashes(index);
-        }
-    }*/
+#endif
 }
 
 void FixedSet::computeHashes(size_t index) {
