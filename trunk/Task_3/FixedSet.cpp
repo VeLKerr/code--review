@@ -71,15 +71,15 @@ void FixedSet::initialize(const vector<int>& numbers) {
         return false;
     });*/
     //2--------------------
-    std::for_each(m_baskets.begin(), m_baskets.end(), [this, &currentIndex](const vector<int> &element) {
-        return true;
+    std::for_each(m_baskets.begin(), m_baskets.end(), [this, &currentIndex](vector<int> &element) {
         if (element.size() > 0) {
             computeHashes(currentIndex);
+            currentIndex++;
         }
     });
     
-    /* 3------------------------------
-    for (size_t index = 0; index < table_size; index++) {
+     //3------------------------------
+    /*for (size_t index = 0; index < table_size; ++index) {
         if (m_baskets[index].size() > 0) {
             computeHashes(index);
         }
