@@ -64,12 +64,14 @@ void FixedSet::initialize(const vector<int>& numbers) {
      */
     size_t currentIndex = 0;
 #if VARIANT_VAL == 1 // не работает
-    vector<int> tmp_vect(table_size);
-    std::copy_if(m_baskets.begin(), m_baskets.end(), tmp_vect.begin(), [this, &currentIndex](const vector<int> &element) {
+    vector<vector<int>> tmp_vect(table_size);
+    std::copy_if(m_baskets.begin(), m_baskets.end(), tmp_vect.begin(), [this, &currentIndex](const vector<int> &element) -> bool{
         if (element.size() > 0) {
             computeHashes(currentIndex);
+            currentIndex++; 
             return true;
         }
+        currentIndex++;
         return false;
     });
 #elif VARIANT_VAL == 2
