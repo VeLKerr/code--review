@@ -2,7 +2,7 @@
 #define FIXEDSET_H
 
 #include "HashFunction.h"
- 
+
 /************************************************************************/
 /* This is a class for storing set of integer numbers                   */
 /************************************************************************/
@@ -36,6 +36,8 @@ private:
      *	Functor for hash-function computation.
      */
     mutable HashFunction m_hash_func;
+
+    void computeHashes(size_t index);
 
     /**
     *   Create the vector of coefficients, which will used for computing hash.
