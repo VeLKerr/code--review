@@ -61,7 +61,8 @@ void FixedSet::initialize(const vector<int>& numbers) {
      отдельную именованную функцию реализовать в вите итератора.
      */
     size_t currentIndex = 0;
-    /*vector<int> tmp_vect(table_size);
+    /*1 --------------------------
+    vector<int> tmp_vect(table_size);
     std::copy_if(m_baskets.begin(), m_baskets.end(), tmp_vect.begin(), [this, &currentIndex]() {
         if (m_baskets[currentIndex].size() > 0) {
             computeHashes(currentIndex);
@@ -69,12 +70,20 @@ void FixedSet::initialize(const vector<int>& numbers) {
         }
         return false;
     });*/
-    std::for_each(m_baskets.begin(), m_baskets.end(), [this, &currentIndex]() {
+    //2--------------------
+    std::for_each(m_baskets.begin(), m_baskets.end(), [this, &currentIndex](const vector<int> &element) {
         return true;
-        if (m_baskets[currentIndex].size() > 0) {
+        if (element.size() > 0) {
             computeHashes(currentIndex);
         }
     });
+    
+    /* 3------------------------------
+    for (size_t index = 0; index < table_size; index++) {
+        if (m_baskets[index].size() > 0) {
+            computeHashes(index);
+        }
+    }*/
 }
 
 void FixedSet::computeHashes(size_t index) {
