@@ -5,6 +5,7 @@
 #include "FixedSet.h" 
 
 using std::vector;
+using std::iterator;
 
 const int PR_MODULE = 5308417;
 const int PR_MODULE_INNER = 514229;
@@ -59,28 +60,43 @@ void FixedSet::initialize(const vector<int>& numbers) {
      P.S. Тут можно развить фантазию и заменить for { if { ... }} на std::copy_if, если
      отдельную именованную функцию реализовать в вите итератора.
      */
-    for (size_t index = 0; index < table_size; ++index) {
-        if (m_baskets[index].size() > 0) {
-            int added_elements;
-            do {
-                size_t cell_size = 4 * m_baskets[index].size() * m_baskets[index].size();
-                m_hash_table[index].assign(cell_size, DEFAULT_VALUE);
-                m_inner_hashes[index] = getHashCoefs(2, PR_MODULE_INNER);
-                added_elements = 0;
-                for (size_t j = 0; j < m_baskets[index].size(); ++j) {
-                    HashFunction curent_inner_hash = m_inner_hashes[index];
-                    int current_bascet = m_baskets[index][j];
-                    if (m_hash_table[index][curent_inner_hash(current_bascet) 
-                        % cell_size] == DEFAULT_VALUE) {
-                        ++added_elements;
-                        m_hash_table[index][curent_inner_hash(current_bascet) 
-                            % cell_size] = m_baskets[index][j];
-                    }
-                }
+    size_t currentIndex = 0;
+    /*vector<int> tmp_vect(table_size);
+    std::copy_if(m_baskets.begin(), m_baskets.end(), tmp_vect.begin(), [this, &currentIndex]() {
+        if (m_baskets[currentIndex].size() > 0) {
+            computeHashes(currentIndex);
+            return true;
+        }
+        return false;
+    });*/
+    std::for_each(m_baskets.begin(), m_baskets.end(), [this, &currentIndex]() {
+        return true;
+        if (m_baskets[currentIndex].size() > 0) {
+            computeHashes(currentIndex);
+        }
+    });
+}
+
+void FixedSet::computeHashes(size_t index) {
+    int added_elements;
+    do {
+        size_t cell_size = 4 * m_baskets[index].size() * m_baskets[index].size();
+        m_hash_table[index].assign(cell_size, DEFAULT_VALUE);
+        m_inner_hashes[index] = getHashCoefs(2, PR_MODULE_INNER);
+        added_elements = 0;
+
+        for (size_t j = 0; j < m_baskets[index].size(); ++j) {
+            HashFunction curent_inner_hash = m_inner_hashes[index];
+            int current_bascet = m_baskets[index][j];
+            if (m_hash_table[index][curent_inner_hash(current_bascet)
+                % cell_size] == DEFAULT_VALUE) {
+                ++added_elements;
+                m_hash_table[index][curent_inner_hash(current_bascet)
+                    % cell_size] = current_bascet;
             }
-            while (added_elements < m_baskets[index].size());
         }
     }
+    while (added_elements < m_baskets[index].size());
 }
 
 bool FixedSet::contains(int number) const {
