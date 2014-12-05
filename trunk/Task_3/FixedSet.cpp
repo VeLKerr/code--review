@@ -35,11 +35,7 @@ void FixedSet::initialize(const vector<int>& numbers) {
     do {
         sizes.assign(table_size, 0);
         m_hash_func = getHashCoefs(2, PR_MODULE);
-        /*==*
-        P.S. захват всех переменных в lambda-выражении -- избыточен.
-        Лучше передавать только используемые переменные + this, если используются поля класса.
-        */
-        std::for_each(numbers.cbegin(), numbers.cend(), [&](int number) {
+        std::for_each(numbers.cbegin(), numbers.cend(), [this, &sizes, &table_size](int number) {
             ++sizes[m_hash_func(number) % table_size];
         });
         summary_length = std::accumulate(sizes.cbegin(), sizes.cbegin() + table_size, 0, [](int sum, int elem) {
