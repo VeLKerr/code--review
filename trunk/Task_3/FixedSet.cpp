@@ -63,7 +63,7 @@ void FixedSet::initialize(const vector<int>& numbers) {
      отдельную именованную функцию реализовать в вите итератора.
      */
     size_t currentIndex = 0;
-#if VARIANT_VAL == 1 // не работает
+#if VARIANT_VAL == 1
     vector<vector<int>> tmp_vect(table_size);
     std::copy_if(m_baskets.begin(), m_baskets.end(), tmp_vect.begin(), [this, &currentIndex](const vector<int> &element) -> bool{
         if (element.size() > 0) {
@@ -74,7 +74,7 @@ void FixedSet::initialize(const vector<int>& numbers) {
         currentIndex++;
         return false;
     });
-#elif VARIANT_VAL == 2
+#else
     std::for_each(m_baskets.begin(), m_baskets.end(), [this, &currentIndex](const vector<int> &element) {
         if (element.size() > 0) {
             computeHashes(currentIndex);
