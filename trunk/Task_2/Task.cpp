@@ -2,6 +2,13 @@
 #include <algorithm>
 #include "Task.h"
 
+/*% Такие определения лучше передавать через опции сборки, а не в
+ * исходном тексте программы. В программе используется следующим
+ * образом:
+#if defined(CHECKING)
+    system("pause");
+#endif
+ */
 #define CHECKING 0
 
 using std::cin;
