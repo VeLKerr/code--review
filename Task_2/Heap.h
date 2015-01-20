@@ -13,17 +13,23 @@ public:
      *	Constructor.
      *  <para>compare</para> - the function for comparison of two segments.
      */
+
+    /*& Такие громоздкие объявления (причем -- повторяющиеся) лучше
+     * выносить в typedef, причем на typedef распространяются скрытие
+     * public/protected/private точно также, как и на все
+     * остальное в классе */
     Heap(std::function<bool(const std::list<MemSegment>::iterator& first,
         const std::list<MemSegment>::iterator& second)> compare);
 
     /**
      *	Check if heap is empty.
      */
-    bool isEmpty();
+    bool isEmpty(); /*% Этот метод -- константный */
 
     /**
      *	Returns head (0th) segment of the heap.
      */
+
     std::list<MemSegment>::iterator get_top();
 
     /**
@@ -54,6 +60,7 @@ private:
     static int right_index(const int ind);
     static int parent_index(const int ind);
 
+    /*% Здесь опечатка в имени: sift --> shift */
     void sift_up(int index);
     void sift_down(int index);
 
