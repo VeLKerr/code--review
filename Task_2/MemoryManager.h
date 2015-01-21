@@ -9,8 +9,7 @@ public:
      *	Constructor.
      *  <para>slots</para> - quantity of memory slots.
      */
-    /*% См. замечание про explicit в MemSegment.h */
-    MemoryManager(const int slots);
+    explicit MemoryManager(const int slots);
 
     /**
      *	Processing query (i.e. allocation memory for it).

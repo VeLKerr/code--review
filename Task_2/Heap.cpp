@@ -3,16 +3,11 @@
 using std::function;
 using std::list;
 
-Heap::Heap(function<bool(const list<MemSegment>::iterator& first,
-    const list<MemSegment>::iterator& second)> compare) {
-    this->m_compare = compare;
-}
-
-bool Heap::isEmpty() {
+bool Heap::isEmpty() const {
     return m_segments.size() == 0;
 }
 
-list<MemSegment>::iterator Heap::get_top() {
+list<MemSegment>::iterator Heap::get_top() const {
     return m_segments.at(0);
 }
 
@@ -44,18 +39,6 @@ void Heap::release_segment(list<MemSegment>::iterator& segment) {
         sift_down(ind);
         sift_up(ind);
     }
-}
-
-int Heap::left_index(const int ind) {
-    return ind * 2 + 1;
-}
-
-int Heap::right_index(const int ind) {
-    return left_index(ind) + 1;
-}
-
-int Heap::parent_index(const int ind) {
-    return (ind + 1) / 2 - 1;
 }
 
 void Heap::sift_up(int index) {

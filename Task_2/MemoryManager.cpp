@@ -4,7 +4,7 @@ using std::list;
 using std::vector;
 
 bool MemoryManager::compare_size(const list<MemSegment>::iterator& first,
-    const list<MemSegment>::iterator& second) {
+    const list<MemSegment>::iterator& second){
     if (first->size() != second->size()) {
         return first->size() < second->size();
     } else {
