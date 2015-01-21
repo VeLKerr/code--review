@@ -9,28 +9,24 @@
 
 class Heap {
 public:
+    typedef std::function<bool(const std::list<MemSegment>::iterator& first,
+        const std::list<MemSegment>::iterator& second)> Compare_func;
     /**
      *	Constructor.
      *  <para>compare</para> - the function for comparison of two segments.
      */
-
-    /*& Такие громоздкие объявления (причем -- повторяющиеся) лучше
-     * выносить в typedef, причем на typedef распространяются скрытие
-     * public/protected/private точно также, как и на все
-     * остальное в классе */
-    Heap(std::function<bool(const std::list<MemSegment>::iterator& first,
-        const std::list<MemSegment>::iterator& second)> compare);
+    inline Heap(Compare_func compare) : m_compare(compare) {
+    };
 
     /**
      *	Check if heap is empty.
      */
-    bool isEmpty(); /*% Этот метод -- константный */
+    bool isEmpty() const;
 
     /**
      *	Returns head (0th) segment of the heap.
      */
-
-    std::list<MemSegment>::iterator get_top();
+    std::list<MemSegment>::iterator get_top() const;
 
     /**
      *	Removes last segment.
@@ -53,14 +49,31 @@ private:
    /**
     *	The function for comparison of two segments.
     */
-    std::function<bool(const std::list<MemSegment>::iterator& first,
-        const std::list<MemSegment>::iterator& second)> m_compare;
+    Compare_func m_compare;
 
-    static int left_index(const int ind);
-    static int right_index(const int ind);
-    static int parent_index(const int ind);
+    static inline int left_index(const int ind) {
+        return ind * 2 + 1;
+    }
+
+    static inline int right_index(const int ind) {
+        return left_index(ind) + 1;
+    }
+
+    static inline int parent_index(const int ind) {
+        return (ind + 1) / 2 - 1;
+    }
 
     /*% Здесь опечатка в имени: sift --> shift */
+
+    /*===
+    Здесь всё правильно.
+    sift - просеять.
+    shift - сдвинуть.
+    Для кучи существует термин именно просеивания 
+    (http://neerc.ifmo.ru/wiki/index.php?title=%D0%94%D0%B2%D0%BE%D0%B8%D1%87%D0%BD%D0%B0%D1%8F_%D0%BA%D1%83%D1%87%D0%B0) - 
+    это восстановление упорядоченности элементов в куче после изменения значения какого-нибудь из них.
+    Именно просеивание я и использовал в этих методах.
+    */
     void sift_up(int index);
     void sift_down(int index);
 

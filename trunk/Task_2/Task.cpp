@@ -9,7 +9,10 @@
     system("pause");
 #endif
  */
-#define CHECKING 0
+
+/*===
+Я читал, что когда условие простое, то используется #ifdef, а не #if defined().
+*/
 
 using std::cin;
 using std::cout;
@@ -26,7 +29,7 @@ int main() {
     for (int query_ind = 0; query_ind < query_cnt; ++query_ind) {
         executeQuery(memory_manager);
     }
-#if CHECKING == 1
+#ifdef CHECKING
     system("pause");
 #endif
     return 0;
