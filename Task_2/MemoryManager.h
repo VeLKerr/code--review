@@ -7,15 +7,9 @@ class MemoryManager {
 public:
     /**
      *	Constructor.
-     *  <para>slots</para> - quantity of memory slots.
+     *  <para>cells</para> - quantity of memory slots.
      */
-     /*>>
-     Имена переменных signals или slots -- не очень хорошие.
-     Это делает невозможным совместное использование кода с Qt (в частности Python.h этим страдает),
-     кроме того неправильно работает подстветска синтаксиса в QtCreator, и, возможно, еще каких-нибудь
-     IDE.
-     */
-    explicit MemoryManager(const int slots);
+    explicit MemoryManager(const int cells);
 
     /**
      *	Processing query (i.e. allocation memory for it).

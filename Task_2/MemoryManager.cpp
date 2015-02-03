@@ -12,8 +12,8 @@ bool MemoryManager::compare_size(const list<MemSegment>::iterator& first,
     }
 }
 
-MemoryManager::MemoryManager(const int slots):m_heap(&MemoryManager::compare_size){
-    MemSegment segment_of_mem(0, slots);
+MemoryManager::MemoryManager(const int cells):m_heap(&MemoryManager::compare_size){
+    MemSegment segment_of_mem(0, cells);
     m_segments.push_back(segment_of_mem);
     m_heap.insert_segment(m_segments.begin());
 }
