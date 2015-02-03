@@ -2,18 +2,6 @@
 #include <algorithm>
 #include "Task.h"
 
-/*% Такие определения лучше передавать через опции сборки, а не в
- * исходном тексте программы. В программе используется следующим
- * образом:
-#if defined(CHECKING)
-    system("pause");
-#endif
- */
-
-/*===
-Я читал, что когда условие простое, то используется #ifdef, а не #if defined().
-*/
-
 using std::cin;
 using std::cout;
 using std::endl;
