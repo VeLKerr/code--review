@@ -3,8 +3,8 @@
 using std::list;
 using std::vector;
 
-bool MemoryManager::compare_size(const list<MemSegment>::iterator& first,
-    const list<MemSegment>::iterator& second){
+bool MemoryManager::compare_size(const Heap::Segment_index& first,
+    const Heap::Segment_index& second){
     if (first->size() != second->size()) {
         return first->size() < second->size();
     } else {
@@ -30,7 +30,7 @@ int MemoryManager::processQuery(const int size) {
         return -1;
     }
 
-    list<MemSegment>::iterator seg_element = m_heap.remove_last();
+    Heap::Segment_index seg_element = m_heap.remove_last();
     if (top_size == size) {
         seg_element->isFree = false;
         m_query_results.push_back(seg_element);
@@ -39,10 +39,10 @@ int MemoryManager::processQuery(const int size) {
         MemSegment busy_block = MemSegment(seg_element->start, seg_element->start + size, false);
         MemSegment free_block = MemSegment(seg_element->start + size, seg_element->end);
 
-        list<MemSegment>::iterator busy_element = m_segments.insert(seg_element, busy_block);
+        Heap::Segment_index busy_element = m_segments.insert(seg_element, busy_block);
         m_query_results.push_back(busy_element);
 
-        list<MemSegment>::iterator free_element = m_segments.insert(seg_element, free_block);
+        Heap::Segment_index free_element = m_segments.insert(seg_element, free_block);
         m_heap.insert_segment(free_element);
 
         m_segments.erase(seg_element);
@@ -53,7 +53,7 @@ int MemoryManager::processQuery(const int size) {
 void MemoryManager::free(const int query_num) {
     m_query_results.push_back(m_segments.end());
 
-    list<MemSegment>::iterator busy_element = m_query_results[query_num];
+    Heap::Segment_index busy_element = m_query_results[query_num];
     if (busy_element == m_segments.end()) {
         return;
     }
@@ -62,7 +62,7 @@ void MemoryManager::free(const int query_num) {
     int end = busy_element->end;
 
     if (busy_element != m_segments.begin()) {
-        list<MemSegment>::iterator previous = busy_element;
+        Heap::Segment_index previous = busy_element;
         --previous;
 
         if (previous->isFree) {
@@ -73,7 +73,7 @@ void MemoryManager::free(const int query_num) {
         }
     }
 
-    list<MemSegment>::iterator next = busy_element;
+    Heap::Segment_index next = busy_element;
     ++next;
 
     if (next != m_segments.end() && next->isFree) {
@@ -88,6 +88,6 @@ void MemoryManager::free(const int query_num) {
     m_segments.erase(busy_element);
 
     MemSegment free_block = MemSegment(start, end);
-    list<MemSegment>::iterator free_element = m_segments.insert(next, free_block);
+    Heap::Segment_index free_element = m_segments.insert(next, free_block);
     m_heap.insert_segment(free_element);
 }

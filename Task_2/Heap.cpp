@@ -7,27 +7,27 @@ bool Heap::isEmpty() const {
     return m_segments.size() == 0;
 }
 
-list<MemSegment>::iterator Heap::get_top() const {
+Heap::Segment_index Heap::get_top() const {
     return m_segments.at(0);
 }
 
-list<MemSegment>::iterator Heap::remove_last() {
+Heap::Segment_index Heap::remove_last() {
     swap_segments(0, m_segments.size() - 1);
-    list<MemSegment>::iterator last = m_segments.back();
+    Segment_index last = m_segments.back();
     last->heapIndex = -1;
     m_segments.pop_back();
     sift_down(0);
     return last;
 }
 
-void Heap::insert_segment(const list<MemSegment>::iterator segment) {
+void Heap::insert_segment(const Segment_index segment) {
     m_segments.push_back(segment);
     int last = m_segments.size() - 1;
     update_index(last);
     sift_up(last);
 }
 
-void Heap::release_segment(list<MemSegment>::iterator& segment) {
+void Heap::release_segment(Segment_index& segment) {
     int ind = segment->heapIndex;
     swap_segments(m_segments.size() - 1, ind);
 
