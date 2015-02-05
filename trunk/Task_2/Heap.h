@@ -9,8 +9,16 @@
 
 class Heap {
 public:
-    typedef std::function<bool(const std::list<MemSegment>::iterator& first,
-        const std::list<MemSegment>::iterator& second)> Compare_func;
+    /**
+     *	Type for heap index of memory segment.
+     * 
+     *  Don't change <code>std::list</code> to something else type of collection!
+     *  Otherwise, the program may not work correctly.
+     */
+    typedef std::list<MemSegment>::iterator Segment_index;
+
+    typedef std::function<bool(const Segment_index& first,
+        const Segment_index& second)> Compare_func;
     /**
      *	Constructor.
      *  <para>compare</para> - the function for comparison of two segments.
@@ -26,25 +34,25 @@ public:
     /**
      *	Returns head (0th) segment of the heap.
      */
-    std::list<MemSegment>::iterator get_top() const;
+    Segment_index get_top() const;
 
     /**
      *	Removes last segment.
      */
-    std::list<MemSegment>::iterator remove_last();
+    Segment_index remove_last();
 
     /**
      *	Insert segment from list to heap.
      */
-    void insert_segment(const std::list<MemSegment>::iterator segment);
+    void insert_segment(const Segment_index segment);
 
     /**
      *	Release memory of the corresponding segment.
      */
-    void release_segment(std::list<MemSegment>::iterator& segment);
+    void release_segment(Segment_index& segment);
 
 private:
-    std::vector<std::list<MemSegment>::iterator> m_segments;
+    std::vector<Segment_index> m_segments;
 
    /**
     *	The function for comparison of two segments.

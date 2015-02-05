@@ -25,25 +25,16 @@ public:
 
 private:
     Heap m_heap;
+
     std::list<MemSegment> m_segments;
-    
-    /*>>
-     * В Яндексе сказали, что это изврат. Обычно в таких случаях они пользуются обычными указателями.
-     * Я поискал использования в коде, -- у тебя один раз используется декремент итератора, поэтому
-     * без перепроектирования перейти на указатели не получится.
-     *
-     * Компромиссное решение: объяви typedef'ом этот итератор и дай ему какое-нибудь осмысленное
-     * имя. При этом обязательно нужен комментарий вида: "не меняй std::list на что-нибудь другое,
-     * иначе работать не будет".
-     * P.S. Больше так не делай
-     */
-    std::vector<std::list<MemSegment>::iterator> m_query_results;
+
+    std::vector<Heap::Segment_index> m_query_results;
 
     /**
     *	The function for comparison of two segments.
     */
-    static bool compare_size(const std::list<MemSegment>::iterator& first,
-        const std::list<MemSegment>::iterator& second);
+    static bool compare_size(const Heap::Segment_index& first,
+        const Heap::Segment_index& second);
 };
 
 #endif // !MEMORYMANAGER_H
