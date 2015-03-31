@@ -88,9 +88,9 @@ namespace aho_corasick {
     using std::rel_ops::operator !=;
 
     /**
-     * namespace internal пришлось удалить, так как
-     * система отказалась его принимать,
-     * выдавая PCF по поводу namespace should be ended with "// namespace internal"
+     * namespace internal РїСЂРёС€Р»РѕСЃСЊ СѓРґР°Р»РёС‚СЊ, С‚Р°Рє РєР°Рє
+     * СЃРёСЃС‚РµРјР° РѕС‚РєР°Р·Р°Р»Р°СЃСЊ РµРіРѕ РїСЂРёРЅРёРјР°С‚СЊ,
+     * РІС‹РґР°РІР°СЏ PCF РїРѕ РїРѕРІРѕРґСѓ namespace should be ended with "// namespace internal"
      */
 
     struct AutomatonNode {
@@ -405,7 +405,7 @@ public:
             [&](size_t id) {
             if (deque_last_pos >= offsets_[id]) {
                 /** 
-                 * тут можно было поставить ++, но система ругается. У меня же с ++ работает.
+                 * С‚СѓС‚ РјРѕР¶РЅРѕ Р±С‹Р»Рѕ РїРѕСЃС‚Р°РІРёС‚СЊ ++, РЅРѕ СЃРёСЃС‚РµРјР° СЂСѓРіР°РµС‚СЃСЏ. РЈ РјРµРЅСЏ Р¶Рµ СЃ ++ СЂР°Р±РѕС‚Р°РµС‚.
                  */
                 words_occurrences_by_position_[deque_last_pos - offsets_[id]] = 
                     words_occurrences_by_position_[deque_last_pos - offsets_[id]] + 1;
