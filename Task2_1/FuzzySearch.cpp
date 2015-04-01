@@ -1,27 +1,30 @@
 #include <algorithm>
 #include <deque>
 #include <iostream>
-#include <string>
-#include <vector>
-#include <queue>
-#include <map>
-#include <unordered_set>
 #include <iterator>
-#include <sstream>
+#include <map>
 #include <memory>
+#include <queue>
+#include <string>
+#include <sstream>
 #include <stdexcept>
+#include <unordered_set>
 #include <utility>
+#include <vector>
 
-using std::vector;
-using std::string;
-using std::map;
+#if __cplusplus < 201103L
+# define override
+#endif
+
 using std::deque;
-
-using std::cout;
-using std::cin;
-using std::endl;
-
+using std::map;
+using std::string;
 using std::unique_ptr;
+using std::vector;
+
+using std::cin;
+using std::cout;
+using std::endl;
 
 //  std::make_unique will be available since c++14
 //  Implementation was taken from http://herbsutter.com/gotw/_102/
@@ -86,12 +89,6 @@ namespace traverses {
 
 namespace aho_corasick { 
     using std::rel_ops::operator !=;
-
-    /**
-     * namespace internal пришлось удалить, так как
-     * система отказалась его принимать,
-     * выдавая PCF по поводу namespace should be ended with "// namespace internal"
-     */
 
     struct AutomatonNode {
         AutomatonNode() :
@@ -173,13 +170,13 @@ namespace aho_corasick {
         explicit SuffixLinkCalculator(AutomatonNode* root) :
             root_(root) {}
 
-        void ExamineVertex(AutomatonNode* node) /*override*/ {
+        void ExamineVertex(AutomatonNode* node) override {
             if (node == root_) {
                 node->suffix_link = node;
             }
         }
 
-        void ExamineEdge(const AutomatonGraph::Edge& edge) /*override*/ {
+        void ExamineEdge(const AutomatonGraph::Edge& edge) override {
             if (edge.target->suffix_link) {
                 return;
             }
@@ -201,7 +198,7 @@ namespace aho_corasick {
         explicit TerminalLinkCalculator(AutomatonNode* root) :
             root_(root) {}
 
-        void DiscoverVertex(AutomatonNode* node) /*override*/ {
+        void DiscoverVertex(AutomatonNode* node) override {
             if (node == root_) {
                 return;
             }
@@ -405,7 +402,7 @@ public:
             [&](size_t id) {
             if (deque_last_pos >= offsets_[id]) {
                 /** 
-                 * тут можно было поставить ++, но система ругается. У меня же с ++ работает.
+                 * тут можно было поставить ++, но система ругается. У меня же ++ работает.
                  */
                 words_occurrences_by_position_[deque_last_pos - offsets_[id]] = 
                     words_occurrences_by_position_[deque_last_pos - offsets_[id]] + 1;
