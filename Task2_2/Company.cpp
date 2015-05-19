@@ -5,31 +5,27 @@ using std::cout;
 using std::cin;
 using std::endl;
 using std::vector;
+using std::list;
+using std::next;
 
-void DFS_directed(size_t vertex, const AdjacencyList &direct,
-    vector<size_t> &order, vector<char> &used) {
+void dfs_directed(size_t vertex, const AdjacencyList &direct,
+    list<size_t> &order, vector<char> &used) {
     used[vertex] = true;
     for (size_t target: direct[vertex]) {
         if (!used[target]) {
-            DFS_directed(target, direct, order, used);
+            dfs_directed(target, direct, order, used);
         }
     }
-    /*% Не очень удачный выбор контейнера для order.
-     *% push_back для std::vector без предварительного reserve
-     *% -- это затраты времени O(N). Лучше использовать std::list или std::deque,
-     *% либо, если можно оценить сверху размер вектора, использовать std::vector.reserve до
-     *% вызова этой функции, и std::vector.shrink_to_fit по окончании ее работы.
-     %*/
     order.push_back(vertex);
 }
 
-void DFS_inversed(size_t vertex, const AdjacencyList &inverse,
+void dfs_inversed(size_t vertex, const AdjacencyList &inverse,
     vector<char> &component, vector<char> &used) {
     used[vertex] = true;
     component[vertex] = true;
     for (size_t target : inverse[vertex]) {
         if (!used[target]) {
-            DFS_inversed(target, inverse, component, used);
+            dfs_inversed(target, inverse, component, used);
         }
     }
 }
@@ -77,19 +73,20 @@ int main() {
     read_conditions(direct, inverse);
     size_t vertexCnt = direct.size();
     vector<char> used(vertexCnt, false);
-    vector<size_t> order;
+    list<size_t> order;
     for (size_t i = 0; i < vertexCnt; ++i) {
         if (!used[i]) {
-            DFS_directed(i, direct, order, used);
+            dfs_directed(i, direct, order, used);
         }
     }
     used.assign(vertexCnt, false);
     size_t minComponentSize = vertexCnt;
+    list<size_t>::iterator it = next(order.begin(), vertexCnt);
     for (size_t i = 0; i < vertexCnt; ++i) {
-        size_t vertex = order[vertexCnt - 1 - i];
+        size_t vertex = *--it;
         if (!used[vertex]) {
             vector<char> component(vertexCnt, false);
-            DFS_inversed(vertex, inverse, component, used);
+            dfs_inversed(vertex, inverse, component, used);
             update_min_compon_size(component, inverse, minComponentSize);
         }
     }
