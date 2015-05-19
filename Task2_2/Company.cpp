@@ -14,6 +14,12 @@ void DFS_directed(size_t vertex, const AdjacencyList &direct,
             DFS_directed(target, direct, order, used);
         }
     }
+    /*% Не очень удачный выбор контейнера для order.
+     *% push_back для std::vector без предварительного reserve
+     *% -- это затраты времени O(N). Лучше использовать std::list или std::deque,
+     *% либо, если можно оценить сверху размер вектора, использовать std::vector.reserve до
+     *% вызова этой функции, и std::vector.shrink_to_fit по окончании ее работы.
+     %*/
     order.push_back(vertex);
 }
 
